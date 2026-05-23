@@ -1,0 +1,94 @@
+# HRMS backend — base profile.
+#
+# Profile-specific overrides:
+#   - application-local.yml   developer machine, talks to docker-compose stack
+#   - application-test.yml    integration tests (resources/test); uses Testcontainers
+#
+# Secrets and per-host values are read from environment variables; nothing
+# secret should ever live in this file.
+
+spring:
+  application:
+    name: hrms
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:${HRMS_DB_URL:jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:hrms}}}
+    username: ${SPRING_DATASOURCE_USERNAME:${HRMS_DB_USER:${POSTGRES_USER:hrms}}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${HRMS_DB_PASSWORD:${POSTGRES_PASSWORD:hrms_local_dev_change_me}}}
+    hikari:
+      pool-name: hrms-pool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 5000
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate     # Flyway owns the schema. Always.
+    properties:
+      hibernate:
+        jdbc.time_zone: UTC
+        format_sql: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: false
+    validate-on-migrate: true
+
+  data:
+    redis:
+      host: ${HRMS_REDIS_HOST:localhost}
+      port: ${HRMS_REDIS_PORT:6379}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${HRMS_OAUTH2_ISSUER_URI:http://localhost:8081/realms/hrms}
+
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${BACKEND_PORT:8080}
+  forward-headers-strategy: framework
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,flyway,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: when_authorized
+      roles: SUPER_ADMIN
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    disable-swagger-default-url: true
+    operationsSorter: method
+    tagsSorter: alpha
+
+hrms:
+  cors:
+    allowed-origins: ${HRMS_CORS_ALLOWED_ORIGINS:http://localhost:5173}
+  default-currency: ${APP_DEFAULT_CURRENCY:INR}
+  default-timezone: ${APP_DEFAULT_TIMEZONE:Asia/Kolkata}
+  storage:
+    enabled: ${HRMS_STORAGE_ENABLED:false}
+    bucket: ${HRMS_S3_BUCKET:hrms-documents}
+    region: ${HRMS_S3_REGION:us-east-1}
+    endpoint: ${HRMS_S3_ENDPOINT:}
+    access-key: ${HRMS_S3_ACCESS_KEY:}
+    secret-key: ${HRMS_S3_SECRET_KEY:}
+    path-style-access: ${HRMS_S3_PATH_STYLE:true}
+    presign-ttl-seconds: ${HRMS_S3_PRESIGN_TTL_SECONDS:300}

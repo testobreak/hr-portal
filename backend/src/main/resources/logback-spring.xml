@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Logback configuration for HRMS.
+
+  - 'local' profile: human-readable colorized console output.
+  - everything else: single-line JSON (logstash encoder) for log shippers.
+  - MDC keys 'requestId' and 'userId' are populated by RequestIdFilter
+    and the security filter chain, and appear on every log line.
+  - Sensitive keys (amount, salary, password, token, secret) are stripped
+    from the structured payload at the encoder level.
+-->
+<configuration scan="false">
+
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="hrms"/>
+
+    <springProfile name="local">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder>
+                <pattern>
+                    %d{HH:mm:ss.SSS} %-5level [%X{requestId:-}] [%X{userId:-anon}] %logger{36} - %msg%n
+                </pattern>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <springProfile name="!local">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                <customFields>{"app":"${appName}"}</customFields>
+                <fieldNames>
+                    <timestamp>@timestamp</timestamp>
+                    <message>message</message>
+                    <logger>logger</logger>
+                    <thread>thread</thread>
+                    <levelValue>[ignore]</levelValue>
+                </fieldNames>
+                <!-- Whitelist only safe MDC keys; everything else is dropped. -->
+                <includeMdcKeyName>requestId</includeMdcKeyName>
+                <includeMdcKeyName>userId</includeMdcKeyName>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

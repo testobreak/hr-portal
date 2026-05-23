@@ -1,0 +1,37 @@
+# Test profile.
+#
+# JDBC URL is overridden at runtime by AbstractIntegrationTest via
+# @DynamicPropertySource pointing at a Testcontainers PostgreSQL 18 container.
+# We still need a placeholder issuer-uri so Spring's resource-server config
+# can be loaded; the test slice mocks JWT decoding rather than reaching out
+# to Keycloak.
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+  data:
+    redis:
+      repositories:
+        enabled: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:0/test
+          jwk-set-uri: http://localhost:0/test/jwks
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+
+logging:
+  level:
+    com.acme.hrms: DEBUG
+    org.springframework.security: INFO
+
+hrms:
+  cors:
+    allowed-origins: http://localhost:5173

@@ -1,0 +1,26 @@
+# Developer-laptop profile.
+# Activate via SPRING_PROFILES_ACTIVE=local (already set in .env.example).
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:${HRMS_DB_URL:jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:hrms}}}
+    username: ${SPRING_DATASOURCE_USERNAME:${HRMS_DB_USER:${POSTGRES_USER:hrms}}}
+    password: hrms_local_dev_change_me
+
+hrms:
+  storage:
+    enabled: true
+    bucket: ${MINIO_BUCKET_DOCUMENTS:hrms-documents}
+    region: ${HRMS_S3_REGION:us-east-1}
+    endpoint: http://127.0.0.1:${MINIO_API_PORT:9000}
+    access-key: ${MINIO_ROOT_USER:}
+    secret-key: ${MINIO_ROOT_PASSWORD:}
+    path-style-access: true
+
+logging:
+  level:
+    root: INFO
+    com.acme.hrms: DEBUG
+    org.springframework.security: INFO
+    org.hibernate.SQL: INFO
+    org.hibernate.orm.jdbc.bind: WARN
