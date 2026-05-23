@@ -2,10 +2,10 @@
   "goal": "Test syntax validation",
   "status": "active",
   "session_id": null,
-  "created_at": "2026-05-23T05:02:54.721121",
-  "updated_at": "2026-05-23T05:03:00.982956",
+  "created_at": "2026-05-23T05:03:49.127240",
+  "updated_at": "2026-05-23T05:03:54.424988",
   "version": 1,
-  "checkpoint_count": 9,
+  "checkpoint_count": 3,
   "current_step": "",
   "completed_steps": [],
   "failed_steps": [],
@@ -15,9 +15,9 @@
       "action_id": "test-1",
       "tool": "write_file",
       "status": "completed",
-      "started_at": "2026-05-23T05:03:00.808516",
-      "completed_at": "2026-05-23T05:03:00.812915+00:00",
-      "duration_seconds": 0.004425048828125,
+      "started_at": "2026-05-23T05:03:54.417410",
+      "completed_at": "2026-05-23T05:03:54.421910+00:00",
+      "duration_seconds": 0.004521608352661133,
       "retries": 0,
       "success": true,
       "input_data": {
@@ -32,44 +32,6 @@
         "success": true,
         "path": "syntax_test.py"
       },
-      "error": ""
-    },
-    {
-      "action_id": "checkpoint-1",
-      "tool": "create_checkpoint",
-      "status": "completed",
-      "started_at": "2026-05-23T05:03:00.820412",
-      "completed_at": "2026-05-23T05:03:00.918987+00:00",
-      "duration_seconds": 0.09858298301696777,
-      "retries": 0,
-      "success": true,
-      "input_data": {
-        "action_id": "checkpoint-1",
-        "tool": "create_checkpoint",
-        "args": {
-          "message": "checkpoint:syntax_test.py"
-        }
-      },
-      "output_data": null,
-      "error": ""
-    },
-    {
-      "action_id": "rollback-1",
-      "tool": "rollback_file",
-      "status": "completed",
-      "started_at": "2026-05-23T05:03:00.928622",
-      "completed_at": "2026-05-23T05:03:00.978817+00:00",
-      "duration_seconds": 0.05021405220031738,
-      "retries": 0,
-      "success": true,
-      "input_data": {
-        "action_id": "rollback-1",
-        "tool": "rollback_file",
-        "args": {
-          "path": "syntax_test.py"
-        }
-      },
-      "output_data": false,
       "error": ""
     }
   ],
@@ -91,16 +53,6 @@
         "success": true,
         "path": "syntax_test.py"
       }
-    },
-    {
-      "tool": "create_checkpoint",
-      "status": "success",
-      "result": null
-    },
-    {
-      "tool": "rollback_file",
-      "status": "success",
-      "result": false
     }
   ],
   "command_history": [],
@@ -114,7 +66,7 @@
     "modification_count": 0,
     "validation_count": 0,
     "repair_count": 0,
-    "tool_call_count": 3,
+    "tool_call_count": 1,
     "tokens_used": 0,
     "runtime_errors": 0,
     "successful_repairs": 0,
