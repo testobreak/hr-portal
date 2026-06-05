@@ -16,6 +16,34 @@ class RetrievalPipeline:
     # MAIN
     # =====================================================
 
+    def retrieve_hierarchical(
+        self,
+        query,
+        top_k=10,
+        queries=None,
+        goal=None
+    ):
+        results = self.retriever.search(
+            query=query,
+            top_k=top_k
+        )
+        if queries:
+            for q in queries:
+                q_res = self.retriever.search(query=q, top_k=top_k)
+                if q_res:
+                    results.extend(q_res)
+
+        if not results:
+            return []
+
+        results = self.deduplicate(results)
+        results = self.expand_neighbors(results)
+
+        rerank_query = goal if goal else query
+        results = self.rerank(rerank_query, results)
+
+        return results[:top_k]
+
     def retrieve_relevant_chunks(
         self,
         query,
