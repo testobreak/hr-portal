@@ -1,0 +1,1 @@
+"    def graph_score(self, session, symbol: Symbol | None, context: Dict[str, Any] = None) -> float:\n        \"\"\"\n        Gives a 50 point boost if candidate has code relationships to active context symbols.\n        Otherwise falls back to general codebase connectivity centrality.\n        \"\"\""

@@ -1,0 +1,1 @@
+"        self.historical_score = 0.0\n\nclass HybridRanker:"

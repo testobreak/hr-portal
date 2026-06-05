@@ -1,0 +1,105 @@
+Created At: 2026-06-05T11:36:12Z
+Completed At: 2026-06-05T11:36:14Z
+File Path: `file:///d:/HRMS/verify_transaction.py`
+Total Lines: 357
+Total Bytes: 6828
+Showing lines 1 to 357
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: import sys
+2: import os
+3: import uuid
+4: import subprocess
+5: from pathlib import Path
+6: from sqlalchemy import text
+7: 
+8: # Add .agent to path so we can import modules
+9: AGENT_ROOT = Path(__file__).resolve().parent / ".agent"
+10: if AGENT_ROOT.exists() and str(AGENT_ROOT) not in sys.path:
+11:     sys.path.insert(0, str(AGENT_ROOT))
+12: 
+13: from repository_intelligence.db.connection import SessionLocal
+14: from repository.git_manager import GitManager
+15: from execution.modification_transaction import ModificationTransaction
+16: from execution.executor import Executor
+17: 
+18: 
+19: class MockStateManager:
+20:     """Mock state manager for test state isolation."""
+21:     def __init__(self, task_id="mock_tx_task_999"):
+22:         self.task_id = task_id
+23:         self.state = type("State", (), {
+24:             "task_id": task_id,
+25:             "modified_files": [],
+26:             "generated_code": []
+27:         })()
+28:         self.validations_count = 0
+29:         self.modifications_count = 0
+30: 
+31:     def get_state(self):
+32:         return self.state
+33: 
+34:     def increment_validations(self):
+35:         self.validations_count += 1
+36: 
+37:     def increment_modifications(self):
+38:         self.modifications_count += 1
+39: 
+40:     def add_tool_output(self, tool, result):
+41:         pass
+42: 
+43:     def add_execution_record(self, record):
+44:         pass
+45: 
+46:     def increment_tool_calls(self):
+47:         pass
+48: 
+49: 
+50: class MockFileManager:
+51:     """Mock file manager targeting local workspace root."""
+52:     de
+<truncated 4911 bytes>
+4:         assert current_text == original_text, f"Expected rollback to '{original_text}', got '{current_text}'"
+315:         print("  [OK] Executor automatically rolled back file changes on Test Suite Validation Failure.")
+316: 
+317:         # Verify DB checkpoint
+318:         row = db_session.execute(
+319:             text("""
+320:                 SELECT validation_status, rollback_reason 
+321:                 FROM modification_checkpoints 
+322:                 WHERE task_id = :task_id AND goal = 'Introduce test suite failure'
+323:             """),
+324:             {"task_id": task_id}
+325:         ).fetchone()
+326:         assert row is not None, "Expected database checkpoint recorded"
+327:         assert row[0] == "ROLLED_BACK", f"Expected ROLLED_BACK, got {row[0]}"
+328:         assert "Test suite validation failed" in row[1], f"Expected matching reason, got {row[1]}"
+329:         print("  [OK] Test suite failure transaction logged as ROLLED_BACK in PostgreSQL.")
+330: 
+331:         print("\n" + "=" * 60)
+332:         print("  ALL TRANSACTION MANAGER & VALIDATION TESTS PASSED! [OK]")
+333:         print("=" * 60 + "\n")
+334: 
+335:     except AssertionError as ae:
+336:         print(f"\n[FAIL] ASSERTION ERROR: {ae}")
+337:         sys.exit(1)
+338:     except Exception as e:
+339:         print(f"\n[FAIL] TEST ERROR: {e}")
+340:         import traceback
+341:         traceback.print_exc()
+342:         sys.exit(1)
+343:     finally:
+344:         # Final cleanup
+345:         clean_db_checkpoints(db_session, task_id)
+346:         db_session.close()
+347:         
+348:         # Remove target dummy file from git and filesystem
+349:         subprocess.run(["git", "restore", target_file_rel], cwd=repo_root, capture_output=True)
+350:         if target_file_abs.exists():
+351:             target_file_abs.unlink(missing_ok=True)
+352: 
+353: 
+354: if __name__ == "__main__":
+355:     run_tests()
+356: 
+357: 
+The above content shows the entire, complete file contents of the requested file.
