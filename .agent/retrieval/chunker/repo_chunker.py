@@ -104,6 +104,12 @@ class RepoChunker:
                     )
 
                 if chunks:
+                    rel_path_str = str(path.resolve().relative_to(root.resolve()))
+                    old_path_str = str(path)
+                    for chunk in chunks:
+                        chunk["file"] = rel_path_str
+                        if "chunk_id" in chunk:
+                            chunk["chunk_id"] = chunk["chunk_id"].replace(old_path_str, rel_path_str)
                     all_chunks.extend(chunks)
                     files_by_ext[suffix] += 1
 
