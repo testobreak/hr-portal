@@ -38,6 +38,8 @@ class TaskState:
 
     session_id: Optional[str] = None
 
+    task_id: Optional[str] = None
+
     created_at: str = field(
         default_factory=lambda:
         datetime.utcnow().isoformat()

@@ -47,9 +47,29 @@ class Planner:
 
         goal = state.goal.lower()
 
-        task_type = self.classify_task(
-            goal
-        )
+        # Prefer task_type set by LLMPlanner; fall back to keywords.
+        llm_task_type = getattr(state, "task_type", None)
+        _type_map = {
+            "bug_fix":  BUG_FIX,
+            "feature":  FEATURE,
+            "refactor": REFACTOR,
+            "analysis": ANALYSIS,
+        }
+        if llm_task_type and llm_task_type in _type_map:
+            task_type = _type_map[llm_task_type]
+        else:
+            task_type = self.classify_task(goal)
+
+        # Check if the plan is already successfully completed
+        completed_tools = {
+            rec.get("tool")
+            for rec in getattr(state, "execution_history", [])
+            if rec.get("success")
+        }
+
+        completion = self.get_completion_check(state, task_type, list(completed_tools))
+        if completion is not None:
+            return completion
 
         # =================================================
         # FAILURE-FIRST
@@ -188,18 +208,21 @@ class Planner:
             state
         )
 
+        has_retrieved = bool(getattr(state, "retrieved_chunks", None))
+
         if not targets:
-
-            return [
-
-                Action(
-                    action_type=RETRIEVE,
-                    title="Retrieve related code",
-                    target=state.goal,
-                    reasoning="Find related implementation",
-                    priority=1
-                ),
-
+            plan = []
+            if not has_retrieved:
+                plan.append(
+                    Action(
+                        action_type=RETRIEVE,
+                        title="Retrieve related code",
+                        target=self._retrieve_query(state),
+                        reasoning="Find related implementation",
+                        priority=1
+                    )
+                )
+            plan.append(
                 Action(
                     action_type=ANALYZE,
                     title="Analyze root cause",
@@ -207,43 +230,45 @@ class Planner:
                     reasoning="Determine affected files",
                     priority=2
                 )
-            ]
+            )
+            return plan
 
         modify_actions = [
             Action(
                 action_type=MODIFY,
                 title=f"Modify {path}",
                 file_path=path,
-                target=state.goal,
-                reasoning=(
-                    "Apply minimal safe fix"
-                ),
+                target=self._retrieve_query(state),
+                reasoning="Apply minimal safe fix",
                 priority=3,
                 blocking=True
             )
             for path in targets
         ]
 
-        return [
+        plan = []
+        if not has_retrieved:
+            plan.append(
+                Action(
+                    action_type=RETRIEVE,
+                    title="Retrieve related code",
+                    target=self._retrieve_query(state),
+                    reasoning="Find related implementation",
+                    priority=1
+                )
+            )
+            plan.append(
+                Action(
+                    action_type=ANALYZE,
+                    title="Analyze root cause",
+                    target="root cause",
+                    reasoning="Understand failure source",
+                    priority=2
+                )
+            )
 
-            Action(
-                action_type=RETRIEVE,
-                title="Retrieve related code",
-                target=state.goal,
-                reasoning="Find related implementation",
-                priority=1
-            ),
-
-            Action(
-                action_type=ANALYZE,
-                title="Analyze root cause",
-                target="root cause",
-                reasoning="Understand failure source",
-                priority=2
-            ),
-
-            *modify_actions,
-
+        plan.extend(modify_actions)
+        plan.extend([
             Action(
                 action_type=VALIDATE,
                 title="Validate modifications",
@@ -251,7 +276,6 @@ class Planner:
                 reasoning="Prevent invalid edits",
                 priority=4
             ),
-
             Action(
                 action_type=TEST,
                 title="Run verification tests",
@@ -259,7 +283,6 @@ class Planner:
                 reasoning="Ensure fix correctness",
                 priority=5
             ),
-
             Action(
                 action_type=GIT_DIFF,
                 title="Inspect final diff",
@@ -267,7 +290,8 @@ class Planner:
                 reasoning="Review generated changes",
                 priority=6
             )
-        ]
+        ])
+        return plan
 
     # =====================================================
     # FEATURE PLAN
@@ -282,18 +306,21 @@ class Planner:
             state
         )
 
+        has_retrieved = bool(getattr(state, "retrieved_chunks", None))
+
         if not targets:
-
-            return [
-
-                Action(
-                    action_type=RETRIEVE,
-                    title="Retrieve related code",
-                    target=state.goal,
-                    reasoning="Find related implementation",
-                    priority=1
-                ),
-
+            plan = []
+            if not has_retrieved:
+                plan.append(
+                    Action(
+                        action_type=RETRIEVE,
+                        title="Retrieve related code",
+                        target=self._retrieve_query(state),
+                        reasoning="Find related implementation",
+                        priority=1
+                    )
+                )
+            plan.append(
                 Action(
                     action_type=ANALYZE,
                     title="Analyze root cause",
@@ -301,14 +328,15 @@ class Planner:
                     reasoning="Determine affected files",
                     priority=2
                 )
-            ]
+            )
+            return plan
 
         feature_modifications = [
             Action(
                 action_type=MODIFY,
                 title=f"Implement feature in {path}",
                 file_path=path,
-                target=state.goal,
+                target=self._retrieve_query(state),
                 reasoning="Apply feature changes",
                 priority=4,
                 blocking=True
@@ -316,80 +344,69 @@ class Planner:
             for path in targets
         ]
 
-        return [
+        plan = []
+        if not has_retrieved:
+            plan.append(
+                Action(
+                    action_type=RETRIEVE,
+                    title="Retrieve architecture",
+                    target=self._retrieve_query(state),
+                    reasoning="Understand existing patterns",
+                    priority=1
+                )
+            )
+            plan.append(
+                Action(
+                    action_type=ANALYZE,
+                    title="Analyze integration points",
+                    target="integration points",
+                    reasoning="Find affected modules",
+                    priority=2
+                )
+            )
 
-            Action(
-                action_type=RETRIEVE,
-                title="Retrieve architecture",
-                target=state.goal,
-                reasoning=(
-                    "Understand existing patterns"
-                ),
-                priority=1
-            ),
-
-            Action(
-                action_type=ANALYZE,
-                title="Analyze integration points",
-                target="integration points",
-                reasoning=(
-                    "Find affected modules"
-                ),
-                priority=2
-            ),
-
+        plan.append(
             Action(
                 action_type=MODIFICATION_PLANNING,
                 title="Plan modifications",
                 target="implementation strategy",
-                reasoning=(
-                    "Minimize architectural impact"
-                ),
+                reasoning="Minimize architectural impact",
                 priority=3
-            ),
+            )
+        )
 
-            *feature_modifications,
-
+        plan.extend(feature_modifications)
+        plan.extend([
             Action(
                 action_type=VALIDATE,
                 title="Validate integration",
                 target="validate feature",
-                reasoning=(
-                    "Check architecture safety"
-                ),
+                reasoning="Check architecture safety",
                 priority=5
             ),
-
             Action(
                 action_type=RUN_BACKEND_TESTS,
                 title="Run backend tests",
                 target="backend validation",
-                reasoning=(
-                    "Verify backend behavior"
-                ),
+                reasoning="Verify backend behavior",
                 priority=6
             ),
-
             Action(
                 action_type=RUN_FRONTEND_BUILD,
                 title="Run frontend build",
                 target="frontend validation",
-                reasoning=(
-                    "Verify frontend compile"
-                ),
+                reasoning="Verify frontend compile",
                 priority=7
             ),
-
             Action(
                 action_type=GIT_DIFF,
                 title="Review final diff",
                 target="git diff",
-                reasoning=(
-                    "Inspect overall changes"
-                ),
+                reasoning="Inspect overall changes",
                 priority=8
             )
-        ]
+        ])
+        return plan
 
     # =====================================================
     # REFACTOR PLAN
@@ -404,18 +421,21 @@ class Planner:
             state
         )
 
+        has_retrieved = bool(getattr(state, "retrieved_chunks", None))
+
         if not targets:
-
-            return [
-
-                Action(
-                    action_type=RETRIEVE,
-                    title="Retrieve related code",
-                    target=state.goal,
-                    reasoning="Find related implementation",
-                    priority=1
-                ),
-
+            plan = []
+            if not has_retrieved:
+                plan.append(
+                    Action(
+                        action_type=RETRIEVE,
+                        title="Retrieve related code",
+                        target=self._retrieve_query(state),
+                        reasoning="Find related implementation",
+                        priority=1
+                    )
+                )
+            plan.append(
                 Action(
                     action_type=ANALYZE,
                     title="Analyze root cause",
@@ -423,7 +443,8 @@ class Planner:
                     reasoning="Determine affected files",
                     priority=2
                 )
-            ]
+            )
+            return plan
 
         refactor_modifications = [
             Action(
@@ -437,38 +458,41 @@ class Planner:
             for path in targets
         ]
 
-        return [
+        plan = []
+        if not has_retrieved:
+            plan.append(
+                Action(
+                    action_type=RETRIEVE,
+                    title="Retrieve impacted code",
+                    target=self._retrieve_query(state),
+                    priority=1
+                )
+            )
+            plan.append(
+                Action(
+                    action_type=ANALYZE,
+                    title="Analyze dependencies",
+                    target="dependency graph",
+                    priority=2
+                )
+            )
 
-            Action(
-                action_type=RETRIEVE,
-                title="Retrieve impacted code",
-                target=state.goal,
-                priority=1
-            ),
-
-            Action(
-                action_type=ANALYZE,
-                title="Analyze dependencies",
-                target="dependency graph",
-                priority=2
-            ),
-
-            *refactor_modifications,
-
+        plan.extend(refactor_modifications)
+        plan.extend([
             Action(
                 action_type=VALIDATE,
                 title="Validate refactor",
                 target="refactor validation",
                 priority=4
             ),
-
             Action(
                 action_type=TEST,
                 title="Run regression tests",
                 target="regression testing",
                 priority=5
             )
-        ]
+        ])
+        return plan
 
     # =====================================================
     # ANALYSIS PLAN
@@ -479,29 +503,34 @@ class Planner:
         state: TaskState
     ):
 
-        return [
+        has_retrieved = bool(getattr(state, "retrieved_chunks", None))
 
-            Action(
-                action_type=RETRIEVE,
-                title="Retrieve related code",
-                target=state.goal,
-                priority=1
-            ),
+        plan = []
+        if not has_retrieved:
+            plan.append(
+                Action(
+                    action_type=RETRIEVE,
+                    title="Retrieve related code",
+                    target=self._retrieve_query(state),
+                    priority=1
+                )
+            )
 
+        plan.extend([
             Action(
                 action_type=ANALYZE,
                 title="Analyze architecture",
-                target=state.goal,
+                target=self._retrieve_query(state),
                 priority=2
             ),
-
             Action(
                 action_type=SUMMARIZE,
                 title="Summarize findings",
                 target="analysis summary",
                 priority=3
             )
-        ]
+        ])
+        return plan
 
     # =====================================================
     # REPAIR PLAN
@@ -582,22 +611,28 @@ class Planner:
         state: TaskState
     ):
 
-        return [
+        has_retrieved = bool(getattr(state, "retrieved_chunks", None))
 
-            Action(
-                action_type=RETRIEVE,
-                title="Retrieve related code",
-                target=state.goal,
-                priority=1
-            ),
+        plan = []
+        if not has_retrieved:
+            plan.append(
+                Action(
+                    action_type=RETRIEVE,
+                    title="Retrieve related code",
+                    target=self._retrieve_query(state),
+                    priority=1
+                )
+            )
 
+        plan.append(
             Action(
                 action_type=ANALYZE,
                 title="Understand repository context",
-                target=state.goal,
+                target=self._retrieve_query(state),
                 priority=2
             )
-        ]
+        )
+        return plan
 
     # =====================================================
     # TARGET RESOLUTION
@@ -654,3 +689,25 @@ class Planner:
         #
 
         return []
+
+    def _retrieve_query(self, state: TaskState) -> str:
+        """
+        Return the best retrieval query for this state.
+        Uses LLM suggested_queries if available, otherwise goal.
+        """
+        queries = getattr(state, "suggested_queries", []) or []
+        if queries:
+            return " | ".join(queries[:2])
+        return state.goal
+
+    def get_completion_check(self, state: TaskState, task_type: str, completed_tools: List[str]) -> List[Action]:
+        # If a terminal summarize step for analysis, or test/validation step has successfully completed, we are done!
+        if task_type == ANALYSIS and "summarize_state" in completed_tools:
+            return []
+        elif task_type in (BUG_FIX, REFACTOR) and ("run_backend_tests" in completed_tools):
+            return []
+        elif task_type == FEATURE and ("run_backend_tests" in completed_tools or "run_frontend_build" in completed_tools):
+            return []
+        elif task_type == UNKNOWN and ("list_files" in completed_tools or "semantic_retrieve" in completed_tools):
+            return []
+        return None

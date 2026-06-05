@@ -46,7 +46,8 @@ class StateManager:
         self.task_id = task_id
 
         self.state = TaskState(
-            goal=goal
+            goal=goal,
+            task_id=task_id
         )
 
         self.save_state()

@@ -6,7 +6,8 @@ class ExecutionEngine:
     def __init__(
         self,
         executor,
-        state_manager
+        state_manager,
+        diagnostics=None
     ):
 
         self.executor = executor
@@ -14,6 +15,8 @@ class ExecutionEngine:
         self.state_manager = (
             state_manager
         )
+
+        self.diagnostics = diagnostics
 
     # =====================================================
     # MAIN
@@ -47,6 +50,12 @@ class ExecutionEngine:
             execution["status"] = (
                 "running"
             )
+
+        if self.diagnostics and isinstance(execution, dict):
+            tool = execution.get("tool", "")
+            args = execution.get("args", {})
+            target = args.get("path") or args.get("query") or args.get("command") or ""
+            self.diagnostics.announce_step(tool, target)
 
         result = (
             self.executor.execute(
