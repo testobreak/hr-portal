@@ -208,6 +208,28 @@ class GitManager:
             return False
 
     # =====================================================
+    # RESTORE CHECKPOINT
+    # =====================================================
+
+    def restore_checkpoint(
+        self,
+        checkpoint_ref: str
+    ) -> bool:
+        """
+        Restores files to the state they were in at the given checkpoint commit.
+        """
+        try:
+            subprocess.run(
+                ["git", "reset", "--mixed", "HEAD~1"],
+                cwd=self.root,
+                capture_output=True,
+                check=True
+            )
+            return True
+        except Exception:
+            return False
+
+    # =====================================================
     # GET LAST CHECKPOINT COMMIT
     # =====================================================
 

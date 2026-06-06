@@ -47,6 +47,9 @@ from retrieval.retriever import (
 from retrieval.retrieval_pipeline import (
     RetrievalPipeline
 )
+from execution.compile_validator import (
+    CompileValidator
+)
 
 
 class Executor:
@@ -85,6 +88,10 @@ class Executor:
 
         self.validator = (
             ExecutionValidator()
+        )
+
+        self.compile_validator = (
+            CompileValidator(file_manager.root)
         )
 
         self.git = GitManager(
@@ -471,7 +478,28 @@ class Executor:
                     except Exception as val_err:
                         print(f"[Validation Failure] {path}: {val_err}")
                         success = False
-                        validation_error = str(val_err)
+                        validation_error = f"Syntax validation failed: {val_err}"
+
+                if success:
+                    # Validate the compilation using resolved absolute path
+                    try:
+                        self.compile_validator.validate(self.file_manager.resolve_path(path))
+                    except Exception as comp_err:
+                        print(f"[Compilation Failure] {path}: {comp_err}")
+                        success = False
+                        validation_error = f"Compilation validation failed: {comp_err}"
+
+                if success:
+                    # Validate using test suite
+                    try:
+                        test_res = self.tests.run_backend_tests()
+                        if not test_res.get("success", False):
+                            success = False
+                            validation_error = f"Test suite validation failed: {test_res.get('failures', 'Unknown test failures')}"
+                    except Exception as test_err:
+                        print(f"[Test Suite Failure] {path}: {test_err}")
+                        success = False
+                        validation_error = f"Test suite validation failed: {test_err}"
 
                 if not success:
 
