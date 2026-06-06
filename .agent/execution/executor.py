@@ -427,11 +427,24 @@ class Executor:
         elif tool == "modify_file":
 
             path = args["path"]
-
             goal = args["goal"]
 
-            try:
+            from execution.modification_transaction import ModificationTransaction
 
+            tx = ModificationTransaction(
+                git_manager=self.git,
+                state_manager=self.state_manager,
+                goal=goal
+            )
+
+            tx.begin()
+
+            success = False
+            validation_error = None
+            patch_result = {"patch": ""}
+            modification_result = None
+
+            try:
                 # Stage 1: Generate modified content
                 modification_result = self.dispatch(
                     "generate_modification",
@@ -465,98 +478,85 @@ class Executor:
                     }
                 )
 
-                success = apply_result.get(
-                    "success",
-                    False
-                )
-
-                validation_error = None
-                if success:
-                    # Validate the applied modification syntax using resolved absolute path before keeping it
-                    try:
-                        self.validator.validate_file_syntax(self.file_manager.resolve_path(path))
-                    except Exception as val_err:
-                        print(f"[Validation Failure] {path}: {val_err}")
-                        success = False
-                        validation_error = f"Syntax validation failed: {val_err}"
-
-                if success:
-                    # Validate the compilation using resolved absolute path
-                    try:
-                        self.compile_validator.validate(self.file_manager.resolve_path(path))
-                    except Exception as comp_err:
-                        print(f"[Compilation Failure] {path}: {comp_err}")
-                        success = False
-                        validation_error = f"Compilation validation failed: {comp_err}"
-
-                if success:
-                    # Validate using test suite
-                    try:
-                        test_res = self.tests.run_backend_tests()
-                        if not test_res.get("success", False):
-                            success = False
-                            validation_error = f"Test suite validation failed: {test_res.get('failures', 'Unknown test failures')}"
-                    except Exception as test_err:
-                        print(f"[Test Suite Failure] {path}: {test_err}")
-                        success = False
-                        validation_error = f"Test suite validation failed: {test_err}"
-
+                success = apply_result.get("success", False)
                 if not success:
+                    raise RuntimeError("Failed to apply patch to target file")
 
-                    self.dispatch(
-                        "rollback_file",
-                        {
-                            "path": path
-                        }
-                    )
+                # Track the modified file in the transaction object
+                tx.modified_files.append(path)
+                tx.save_to_db()
+
+                # Stage 4: Syntax validation (AST / brace balance)
+                try:
+                    self.validator.validate_file_syntax(self.file_manager.resolve_path(path))
+                    if hasattr(self.state_manager, "increment_validations"):
+                        self.state_manager.increment_validations()
+                except Exception as val_err:
+                    print(f"[Validation Failure] {path}: {val_err}")
+                    if hasattr(self.state_manager, "increment_validations"):
+                        self.state_manager.increment_validations()
+                    raise RuntimeError(f"Syntax validation failed: {val_err}")
+
+                # Stage 5: Compile validation (language-specific)
+                try:
+                    self.compile_validator.validate(self.file_manager.resolve_path(path))
+                except Exception as comp_err:
+                    print(f"[Compilation Failure] {path}: {comp_err}")
+                    raise RuntimeError(f"Compilation validation failed: {comp_err}")
+
+                # Stage 6: Unit/Integration Tests
+                try:
+                    test_res = self.tests.run_backend_tests()
+                    if not test_res.get("success", False):
+                        raise RuntimeError(f"Test suite validation failed: {test_res.get('failures', 'Unknown test failures')}")
+                except Exception as test_err:
+                    print(f"[Test Suite Failure] {path}: {test_err}")
+                    raise RuntimeError(f"Test suite validation failed: {test_err}")
+
+                # Commit transaction on complete success
+                tx.commit()
+                success = True
 
                 # Update state safely on lifecycle success
                 state = self.state_manager.get_state()
 
-                if success:
-                    if hasattr(state, "modified_files"):
+                if hasattr(state, "modified_files"):
+                    if state.modified_files is None:
+                        state.modified_files = []
+                    if path not in state.modified_files:
+                        state.modified_files.append(path)
 
-                        if state.modified_files is None:
-                            state.modified_files = []
+                if hasattr(state, "generated_code"):
+                    if state.generated_code is None:
+                        state.generated_code = []
+                    state.generated_code.append({
+                        "path": path,
+                        "content": modification_result["modified"]
+                    })
 
-                        if path not in state.modified_files:
-                            state.modified_files.append(path)
-
-                    if hasattr(state, "generated_code"):
-
-                        if state.generated_code is None:
-                            state.generated_code = []
-
-                        state.generated_code.append({
-                            "path": path,
-                            "content":
-                                modification_result["modified"]
-                        })
+                if hasattr(self.state_manager, "increment_modifications"):
+                    self.state_manager.increment_modifications()
 
                 result = {
                     "success": success,
                     "path": path,
                     "patch": patch_result["patch"]
                 }
-                if validation_error:
-                    result["error"] = validation_error
                 return result
 
-            except Exception:
+            except Exception as tx_err:
+                validation_error = str(tx_err)
+                print(f"[Validation Failure] {path}: {validation_error}")
+                tx.rollback(reason=validation_error)
+                success = False
 
-                try:
-
-                    self.dispatch(
-                        "rollback_file",
-                        {
-                            "path": path
-                        }
-                    )
-
-                except Exception:
-                    pass
-
-                raise
+                result = {
+                    "success": success,
+                    "path": path,
+                    "patch": patch_result.get("patch", ""),
+                    "error": validation_error
+                }
+                return result
 
         elif tool == "generate_modification":
 

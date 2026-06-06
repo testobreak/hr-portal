@@ -197,6 +197,15 @@ class TaskState:
     # =====================================================
 
     def trim_memory(self):
+        # Trigger automatic memory compaction if completed steps exceed limits
+        if hasattr(self, "_compactor") and self._compactor is not None:
+            self._compactor.compact(self)
+        else:
+            try:
+                from memory.compaction import MemoryCompactor
+                MemoryCompactor().compact(self)
+            except Exception:
+                pass
 
         self.completed_steps = (
             self.completed_steps[
