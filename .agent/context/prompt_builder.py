@@ -113,14 +113,23 @@ If tests fail:
 
         return self._format_section("DEPENDENCY GRAPH", graph_str)
 
+    def build_files_section(self, ctx: PromptContext) -> str:
+        files = []
+        for chunk in (ctx.retrieved_chunks or []):
+            path = chunk.get("file") or chunk.get("file_path")
+            if path and path not in files:
+                files.append(path)
+        content = "\n".join(f"- {f}" for f in files) if files else "No files in context."
+        return self._format_section("FILE", content)
+
     def build_retrieved_code(self, ctx: PromptContext) -> str:
         """Build a section with retrieved code snippets.
 
         Uses ContextCompressor to truncate large files to a configurable limit
-        (default 4000 characters) and includes up to 10 snippets for richer
+        (default 1500 characters) and includes up to 10 snippets for richer
         context.
         """
-        compressor = ContextCompressor(max_chunk_chars=4000)
+        compressor = ContextCompressor(max_chunk_chars=1500)
         snippets = []
         for chunk in (ctx.retrieved_chunks or []):
             file_path = chunk.get("file") or chunk.get("file_path") or "unknown_file"
@@ -163,6 +172,7 @@ If tests fail:
 
         sections = [
             self.build_task_section(ctx),
+            self.build_files_section(ctx),
             self.build_execution_context(ctx),
             self.build_repository_context(ctx),
             self.build_architecture_notes(ctx),
