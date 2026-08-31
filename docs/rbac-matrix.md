@@ -3,29 +3,34 @@
 > This file is **authoritative**. Every API endpoint and UI screen must trace
 > back to a row here. Changes to this matrix require an ADR.
 
-## Roles
+## Roles & Scopes Hierarchy
 
-| Role              | Intent                                                                 |
-|-------------------|------------------------------------------------------------------------|
-| `SUPER_ADMIN`     | Full access. Holds the audit log viewer. Use sparingly.                |
-| `HR_ADMIN`        | Manages employee master data, salary, documents, appraisals.           |
-| `FINANCE_ADMIN`   | Salary read/write, billing, finance reports.                           |
-| `LEADERSHIP`      | Sees aggregated dashboards. **Never raw salary amounts.**              |
-| `MANAGER`         | Manages own direct reports; runs appraisal cycles for the team.        |
-| `PROJECT_MANAGER` | Manages projects and allocations they own; project-level billing input.|
-| `EMPLOYEE`        | Self-service: own profile, own salary, own documents, own appraisals.  |
+Authorisation is calculated as `Permission = Resource + Action + Scope`.
 
-A user can hold multiple roles; effective permissions are the **union**.
+| Role | Scope Intent & Key Responsibilities |
+| :--- | :--- |
+| `SUPER_ADMIN` | **GLOBAL**: System/SaaS platform owner. Tenant onboarding, global audit log, cross-company administration. |
+| `ORGANIZATION_ADMIN` | **ORGANIZATION**: Company top administrator. Company settings, departments, locations, policy configuration. |
+| `HR_ADMIN` | **ORGANIZATION**: Full HR operations, employee master data, salary management, appraisals, and policy runs. |
+| `HR_EXECUTIVE` | **ORGANIZATION (Restricted)**: Operations HR (onboarding, leave processing, document uploads). Restricted from salary & org settings. |
+| `FINANCE_ADMIN` | **ORGANIZATION**: Salary read/write, billing, invoice management, financial reports. |
+| `PAYROLL_ADMIN` | **ORGANIZATION**: Dedicated payroll run execution, salary component setup, payslip generation. |
+| `RECRUITER` | **ORGANIZATION**: Job requisitions, postings, candidate applications, and interview scheduling. |
+| `LEADERSHIP` | **ORGANIZATION (Aggregated)**: Executive dashboards and high-level KPIs. **Never raw individual salary amounts.** |
+| `PROJECT_MANAGER` | **TEAM / PROJECT**: Manages projects, clients, and team member allocations they own. |
+| `EMPLOYEE` | **SELF**: Baseline self-service role (own profile, own leave, own payslips, own documents). |
 
-## Conventions
+> **Note on Manager Role**: `MANAGER` access is an inferred **Organizational Relationship** (`TEAM` scope) calculated dynamically from the `employee.manager_id` reporting tree. Any employee with direct or indirect reports inherits `TEAM`-scoped management permissions.
 
-- "Self only" means the row whose `employee_id` matches the calling user's
-  Keycloak subject (mapped to `employee.keycloak_user_id`).
-- "Reports" means any descendant in `employee.manager_id` tree.
-- "Project members" means employees with an active `allocation` on a project
-  the calling user is `project_manager_id` for.
-- "Aggregates only" means the field is allowed in `sum`/`avg`/`count` queries
-  but never returned per row.
+A user can hold multiple roles; effective permissions are the **union** of their scopes.
+
+## Conventions & Scope Levels
+
+- **`SELF`**: Evaluated where `target_employee_id == calling_user.id`.
+- **`TEAM`**: Evaluated for any descendant in `employee.manager_id` tree or active project members on managed projects.
+- **`DEPARTMENT`**: Evaluated for employees sharing the calling user's `department_id`.
+- **`ORGANIZATION`**: Evaluated for any record belonging to the calling user's `tenant_id`.
+- **`GLOBAL`**: Unrestricted cross-tenant platform access (`SUPER_ADMIN`).
 - Empty cell = denied (HTTP 403).
 
 ## 1. Employee

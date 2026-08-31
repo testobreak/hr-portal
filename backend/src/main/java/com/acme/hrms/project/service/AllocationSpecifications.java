@@ -50,7 +50,7 @@ final class AllocationSpecifications {
             return alwaysFalse();
         }
         return (root, query, cb) ->
-                cb.equal(root.get("project").get("projectManager").get("keycloakUserId"), subjectUuid);
+                cb.equal(root.get("project").get("projectManager").get("id"), subjectUuid);
     }
 
     static Specification<Allocation> self(UUID subjectUuid) {
@@ -58,6 +58,6 @@ final class AllocationSpecifications {
             return alwaysFalse();
         }
         return (root, query, cb) ->
-                cb.equal(root.get("employee").get("keycloakUserId"), subjectUuid);
+                cb.equal(root.get("employee").get("id"), subjectUuid);
     }
 }

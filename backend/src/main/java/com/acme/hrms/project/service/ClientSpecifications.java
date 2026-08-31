@@ -44,7 +44,7 @@ final class ClientSpecifications {
             var subquery = query.subquery(UUID.class);
             var project = subquery.from(Project.class);
             subquery.select(project.get("client").get("id"))
-                    .where(cb.equal(project.get("projectManager").get("keycloakUserId"), subjectUuid));
+                    .where(cb.equal(project.get("projectManager").get("id"), subjectUuid));
             return root.get("id").in(subquery);
         };
     }

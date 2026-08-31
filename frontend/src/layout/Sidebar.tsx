@@ -50,7 +50,7 @@ export function Sidebar() {
   return (
     <aside className="flex w-56 shrink-0 flex-col border-r border-sidebar-active bg-sidebar text-sidebar-foreground">
       <div className="border-b border-sidebar-active px-4 py-5">
-        <p className="text-lg font-semibold tracking-tight">HRMS</p>
+        <p className="text-lg font-semibold tracking-tight">HR Portal</p>
         <p className="text-xs text-sidebar-muted">Acme internal</p>
       </div>
       <nav className="flex-1 overflow-y-auto px-2 py-4">

@@ -44,6 +44,8 @@ import lombok.Setter;
  * — JPA entities should be compared by id only, and only after the id is
  * assigned. Subclasses that need set-membership semantics override these.
  */
+
+
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 @Getter
@@ -51,7 +53,6 @@ import lombok.Setter;
 public abstract class BaseEntity {
 
     @Id
-    @UuidGenerator(style = UuidGenerator.Style.TIME)
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
@@ -71,6 +72,10 @@ public abstract class BaseEntity {
     @Column(name = "updated_by")
     private UUID updatedBy;
 
+    @org.hibernate.annotations.TenantId
+    @Column(name = "tenant_id", nullable = false)
+    private UUID tenantId;
+
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
@@ -80,5 +85,19 @@ public abstract class BaseEntity {
 
     public boolean isDeleted() {
         return deletedAt != null;
+    }
+
+    @jakarta.persistence.PrePersist
+    protected void populateTenantId() {
+        if (this.id == null) {
+            this.id = UUID.randomUUID();
+        }
+        if (this.tenantId == null) {
+            UUID id = com.acme.hrms.common.tenant.TenantContext.getTenantId();
+            if (id == null) {
+                id = UUID.fromString("00000000-0000-0000-0000-000000000000");
+            }
+            this.tenantId = id;
+        }
     }
 }

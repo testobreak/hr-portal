@@ -17,7 +17,7 @@ export function HomePage() {
   if (auth.error) {
     return (
       <main className="mx-auto max-w-lg p-6">
-        <h1 className="text-2xl font-semibold">HRMS</h1>
+        <h1 className="text-2xl font-semibold">HR Portal</h1>
         <p className="mt-2 text-red-600">Auth init failed: {auth.error}</p>
       </main>
     );
@@ -26,7 +26,7 @@ export function HomePage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-lg flex-col justify-center gap-6 p-6">
       <header>
-        <h1 className="text-3xl font-semibold tracking-tight">HRMS</h1>
+        <h1 className="text-3xl font-semibold tracking-tight">HR Portal</h1>
         <p className="mt-2 text-muted-foreground">Internal HR / resource management.</p>
       </header>
       <Card>
@@ -35,7 +35,7 @@ export function HomePage() {
           <CardDescription>
             {auth.authenticated
               ? 'Open the dashboard to manage employees, projects, and more.'
-              : 'Use your Acme Keycloak account to continue.'}
+              : 'Use your credentials to sign in.'}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-3">
@@ -50,7 +50,7 @@ export function HomePage() {
             </>
           ) : (
             <Button type="button" onClick={() => auth.login('/dashboard')}>
-              Sign in with Keycloak
+              Sign In
             </Button>
           )}
         </CardContent>

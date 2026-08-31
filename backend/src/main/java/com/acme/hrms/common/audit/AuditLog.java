@@ -87,4 +87,8 @@ public class AuditLog {
 
     @Column(name = "detail", length = 1024)
     private String detail;
+
+    @org.hibernate.annotations.TenantId
+    @Column(name = "tenant_id", nullable = false, updatable = false)
+    private UUID tenantId;
 }

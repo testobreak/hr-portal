@@ -203,15 +203,14 @@ public class DocumentServiceImpl implements DocumentService {
 
     private boolean isSelf(CurrentUser user, Employee employee) {
         return user.subjectUuid() != null
-                && employee.getKeycloakUserId() != null
-                && user.subjectUuid().equals(employee.getKeycloakUserId());
+                && user.subjectUuid().equals(employee.getId());
     }
 
     private Employee resolveSelf(CurrentUser user) {
         if (user.subjectUuid() == null) {
             throw new ForbiddenAccessException("Authenticated subject is not linked");
         }
-        return employees.findByKeycloakUserId(user.subjectUuid())
+        return employees.findById(user.subjectUuid())
                 .orElseThrow(() -> new ForbiddenAccessException("No employee is linked to the authenticated subject"));
     }
 

@@ -143,7 +143,7 @@ public class AllocationServiceImpl implements AllocationService {
             return AllocationSpecifications.alwaysTrue();
         }
         if (caller.hasRole(Roles.MANAGER)) {
-            return employees.findByKeycloakUserId(caller.subjectUuid())
+            return employees.findById(caller.subjectUuid())
                     .map(self -> AllocationSpecifications.employeeIdIn(employees.findDescendantIds(self.getId())))
                     .orElseGet(AllocationSpecifications::alwaysFalse);
         }
@@ -163,7 +163,7 @@ public class AllocationServiceImpl implements AllocationService {
         if (caller != null && caller.hasRole(Roles.PROJECT_MANAGER)
                 && project.getProjectManager() != null
                 && caller.subjectUuid() != null
-                && caller.subjectUuid().equals(project.getProjectManager().getKeycloakUserId())) {
+                && caller.subjectUuid().equals(project.getProjectManager().getId())) {
             return;
         }
         throw new ForbiddenAccessException("Cannot manage allocations for this project");

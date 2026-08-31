@@ -37,6 +37,7 @@ export type EmployeeCreatePayload = {
   designationId?: string;
   locationId?: string;
   managerId?: string;
+  keycloakPassword?: string;
 };
 
 export type EmployeeUpdatePayload = Omit<EmployeeCreatePayload, 'employeeCode'> & {

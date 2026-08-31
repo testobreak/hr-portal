@@ -37,6 +37,11 @@ public interface EmployeeMapper {
     @Mapping(target = "locationName",     source = "location.name")
     @Mapping(target = "managerId",        source = "manager.id")
     @Mapping(target = "managerName",      source = "manager", qualifiedByName = "fullName")
+    @Mapping(target = "legalEntityId",     source = "legalEntity.id")
+    @Mapping(target = "legalEntityName",   source = "legalEntity.name")
+    @Mapping(target = "roles",             source = "roles")
+    @Mapping(target = "keycloakUserId",    source = "id")
+    @Mapping(target = "tempPassword",      ignore = true)
     EmployeeResponse toResponse(Employee entity);
 
     @Named("fullName")
@@ -75,11 +80,16 @@ public interface EmployeeMapper {
                 full.designationTitle(),
                 full.locationId(),
                 full.locationName(),
+                full.legalEntityId(),
+                full.legalEntityName(),
                 full.managerId(),
                 full.managerName(),
                 full.createdAt(),
                 full.updatedAt(),
-                full.version());
+                full.version(),
+                null,                    // roles redacted
+                null                     // tempPassword redacted
+        );
     }
 
     @Mapping(target = "id",                ignore = true)
@@ -92,7 +102,14 @@ public interface EmployeeMapper {
     @Mapping(target = "department",        ignore = true)
     @Mapping(target = "designation",       ignore = true)
     @Mapping(target = "location",          ignore = true)
+    @Mapping(target = "legalEntity",       ignore = true)
     @Mapping(target = "manager",           ignore = true)
+    @Mapping(target = "tenantId",          ignore = true)
+    @Mapping(target = "preferredName",     ignore = true)
+    @Mapping(target = "bankAccountNumber", ignore = true)
+    @Mapping(target = "taxId",             ignore = true)
+    @Mapping(target = "passwordHash",      ignore = true)
+    @Mapping(target = "roles",             ignore = true)
     Employee toEntity(EmployeeCreateRequest request);
 
     @Mapping(target = "id",                ignore = true)
@@ -105,7 +122,14 @@ public interface EmployeeMapper {
     @Mapping(target = "department",        ignore = true)
     @Mapping(target = "designation",       ignore = true)
     @Mapping(target = "location",          ignore = true)
+    @Mapping(target = "legalEntity",       ignore = true)
     @Mapping(target = "manager",           ignore = true)
+    @Mapping(target = "tenantId",          ignore = true)
+    @Mapping(target = "preferredName",     ignore = true)
+    @Mapping(target = "bankAccountNumber", ignore = true)
+    @Mapping(target = "taxId",             ignore = true)
+    @Mapping(target = "passwordHash",      ignore = true)
+    @Mapping(target = "roles",             ignore = true)
     void apply(EmployeeUpdateRequest request, @MappingTarget Employee entity);
 
     @Mapping(target = "id",                ignore = true)
@@ -116,15 +140,21 @@ public interface EmployeeMapper {
     @Mapping(target = "dateOfBirth",       ignore = true)
     @Mapping(target = "dateOfJoining",     ignore = true)
     @Mapping(target = "employmentStatus",  ignore = true)
-    @Mapping(target = "keycloakUserId",    ignore = true)
+    @Mapping(target = "passwordHash",      ignore = true)
+    @Mapping(target = "roles",             ignore = true)
     @Mapping(target = "department",        ignore = true)
     @Mapping(target = "designation",       ignore = true)
     @Mapping(target = "location",          ignore = true)
+    @Mapping(target = "legalEntity",       ignore = true)
     @Mapping(target = "manager",           ignore = true)
     @Mapping(target = "createdAt",         ignore = true)
     @Mapping(target = "createdBy",         ignore = true)
     @Mapping(target = "updatedAt",         ignore = true)
     @Mapping(target = "updatedBy",         ignore = true)
     @Mapping(target = "deletedAt",         ignore = true)
+    @Mapping(target = "tenantId",          ignore = true)
+    @Mapping(target = "preferredName",     ignore = true)
+    @Mapping(target = "bankAccountNumber", ignore = true)
+    @Mapping(target = "taxId",             ignore = true)
     void applyContact(EmployeeContactUpdateRequest request, @MappingTarget Employee entity);
 }

@@ -36,10 +36,23 @@ public final class JwtTestSupport {
                 .authorities(authorities);
     }
 
+    public static RequestPostProcessor asTenantUser(UUID subject, String username, UUID tenantId, String... roles) {
+        List<String> roleList = Arrays.asList(roles);
+        SimpleGrantedAuthority[] authorities = roleList.stream()
+                .map(r -> new SimpleGrantedAuthority(Roles.AUTHORITY_PREFIX + r))
+                .toArray(SimpleGrantedAuthority[]::new);
+        return jwt()
+                .jwt(builder -> {
+                    applyClaims(builder, subject, username, roleList);
+                    builder.claim("tenant_id", tenantId.toString());
+                })
+                .authorities(authorities);
+    }
+
     private static void applyClaims(Jwt.Builder builder, UUID subject, String username, List<String> roles) {
         builder.subject(subject.toString())
                 .claim("preferred_username", username)
                 .claim("email", username)
-                .claim("realm_access", Map.of("roles", roles));
+                .claim("roles", roles);
     }
 }

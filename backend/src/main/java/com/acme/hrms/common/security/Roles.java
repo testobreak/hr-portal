@@ -19,8 +19,12 @@ package com.acme.hrms.common.security;
 public final class Roles {
 
     public static final String SUPER_ADMIN = "SUPER_ADMIN";
+    public static final String ORGANIZATION_ADMIN = "ORGANIZATION_ADMIN";
     public static final String HR_ADMIN = "HR_ADMIN";
+    public static final String HR_EXECUTIVE = "HR_EXECUTIVE";
     public static final String FINANCE_ADMIN = "FINANCE_ADMIN";
+    public static final String PAYROLL_ADMIN = "PAYROLL_ADMIN";
+    public static final String RECRUITER = "RECRUITER";
     public static final String LEADERSHIP = "LEADERSHIP";
     public static final String MANAGER = "MANAGER";
     public static final String PROJECT_MANAGER = "PROJECT_MANAGER";

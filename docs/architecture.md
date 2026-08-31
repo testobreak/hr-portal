@@ -129,19 +129,30 @@ Each feature package contains its own `*Entity`, `*Repository`, `*Service`,
 - Frontend types are generated from `/v3/api-docs` via `openapi-typescript`
   (types only — no full client). Output is gitignored.
 
-## 4. Security
+## 4. Security & Authorization Architecture
 
-- Spring Boot configured as **OAuth2 Resource Server**, validating Keycloak JWTs.
-- A `JwtRoleConverter` maps `realm_access.roles` to `ROLE_*` granted authorities.
-- Endpoint authorisation uses `@PreAuthorize("hasRole('HR_ADMIN')")` etc.
-- **Field-level** authorisation for sensitive responses (e.g. salary `amount`)
-  happens in the service layer, not the controller — list endpoints must not
-  leak fields the role isn't allowed to see.
-- Bearer-only API. **No cookies, no CSRF.** CORS allowlist = the frontend origin.
-- Keycloak realm `hrms` is bootstrapped from
-  [`infra/keycloak/realm-hrms.json`](../infra/keycloak/realm-hrms.json).
-  Roles, clients, password policy, and seed users live there. Modify the JSON
-  + reset the volume to change.
+- **Scope-Based Permission Model**: Authorisation follows `Permission = Resource + Action + Scope`.
+  - **Scopes**:
+    - `SELF`: Own records (`employee.id == user.id`).
+    - `TEAM`: Descendants in `employee.manager_id` reporting tree or active project allocations.
+    - `DEPARTMENT`: Employees belonging to the same `department_id`.
+    - `ORGANIZATION`: Scoped to single company (`tenant_id`).
+    - `GLOBAL`: Cross-tenant platform level (`SUPER_ADMIN`).
+- **Manager as an Organizational Relationship**:
+  - `MANAGER` is an inferred relationship based on `employee.manager_id` hierarchy rather than a rigid static user role. Anyone with reporting subordinates dynamically inherits `TEAM` scope permissions.
+- **Role Hierarchy**:
+  - `SUPER_ADMIN`: SaaS platform owner (`GLOBAL` scope).
+  - `ORGANIZATION_ADMIN`: Organization top administrator (`ORGANIZATION` scope).
+  - `HR_ADMIN`: Full HR operations, salary, and company settings.
+  - `HR_EXECUTIVE`: Operations-focused HR (onboarding, leave, documents; restricted from salary & org settings).
+  - `FINANCE_ADMIN`: Salary read/write, billing, and financial reports.
+  - `PAYROLL_ADMIN`: Dedicated payroll run & payslip management.
+  - `RECRUITER`: Job openings, candidate applications, and interview workflows.
+  - `LEADERSHIP`: Aggregated executive dashboards (never raw salary amounts).
+  - `PROJECT_MANAGER`: Project-level allocations and project billing inputs.
+  - `EMPLOYEE`: Base self-service role (`SELF` scope).
+- Spring Boot configured as **OAuth2 Resource Server** validating backend-issued or Keycloak JWTs.
+- Bearer-only API. **No cookies, no CSRF.** CORS allowlist = frontend origin (`http://localhost:5173`).
 
 ## 5. Storage abstraction
 

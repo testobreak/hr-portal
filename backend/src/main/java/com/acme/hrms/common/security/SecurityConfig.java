@@ -1,7 +1,10 @@
 package com.acme.hrms.common.security;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,16 +13,29 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.OctetSequenceKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
+
 /**
  * Spring Security configuration.
  *
  * <p>The API is a stateless OAuth2 Resource Server: every request must carry a
- * Keycloak-issued bearer JWT, except the public endpoints below. There are no
+ * backend-issued bearer JWT, except the public endpoints below. There are no
  * sessions and no CSRF — clients send {@code Authorization: Bearer ...} on
  * every call.
  */
@@ -29,6 +45,9 @@ public class SecurityConfig {
 
     @Value("${hrms.cors.allowed-origins:http://localhost:5173}")
     private String allowedOrigins;
+
+    @Value("${hrms.security.jwt.secret-key}")
+    private String secretKey;
 
     private final ProblemAuthenticationEntryPoint authEntryPoint;
     private final ProblemAccessDeniedHandler accessDeniedHandler;
@@ -49,6 +68,8 @@ public class SecurityConfig {
                         .authenticationEntryPoint(authEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler))
                 .authorizeHttpRequests(auth -> auth
+                        // Public auth endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/login").permitAll()
                         // Health probes and basic info are unauthenticated. Detailed
                         // health is gated to SUPER_ADMIN by application.yml.
                         .requestMatchers(HttpMethod.GET,
@@ -64,7 +85,8 @@ public class SecurityConfig {
                                 "/v3/api-docs",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html",
-                                "/swagger-ui/**"
+                                "/swagger-ui/**",
+                                "/api/v1/careers/**"
                         ).permitAll()
                         // CORS preflight.
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
@@ -72,8 +94,33 @@ public class SecurityConfig {
                         // authorisation lives on the controllers.
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt
-                        .jwtAuthenticationConverter(new JwtRoleConverter())));
+                        .jwtAuthenticationConverter(new JwtRoleConverter())))
+                .addFilterAfter(new com.acme.hrms.common.tenant.TenantFilter(),
+                        org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter.class);
         return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder() {
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+        SecretKey spec = new SecretKeySpec(keyBytes, "HmacSHA256");
+        return NimbusJwtDecoder.withSecretKey(spec).build();
+    }
+
+    @Bean
+    public JwtEncoder jwtEncoder() {
+        byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+        SecretKey spec = new SecretKeySpec(keyBytes, "HmacSHA256");
+        JWK jwk = new OctetSequenceKey.Builder(spec)
+                .keyID("hrms-key")
+                .build();
+        JWKSource<SecurityContext> jwks = new ImmutableJWKSet<>(new JWKSet(jwk));
+        return new NimbusJwtEncoder(jwks);
     }
 
     @Bean

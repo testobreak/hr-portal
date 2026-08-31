@@ -171,7 +171,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (caller != null && caller.hasRole(Roles.PROJECT_MANAGER)
                 && project.getProjectManager() != null
                 && caller.subjectUuid() != null
-                && caller.subjectUuid().equals(project.getProjectManager().getKeycloakUserId())) {
+                && caller.subjectUuid().equals(project.getProjectManager().getId())) {
             return;
         }
         throw new ForbiddenAccessException("Cannot manage this project");
@@ -182,7 +182,7 @@ public class ProjectServiceImpl implements ProjectService {
             return;
         }
         if (caller != null && caller.hasRole(Roles.PROJECT_MANAGER)) {
-            Optional<Employee> currentEmployee = employees.findByKeycloakUserId(caller.subjectUuid());
+            Optional<Employee> currentEmployee = employees.findById(caller.subjectUuid());
             if (currentEmployee.isPresent() && currentEmployee.get().getId().equals(requestedProjectManagerId)) {
                 return;
             }

@@ -37,10 +37,14 @@ public record EmployeeResponse(
         String designationTitle,
         UUID locationId,
         String locationName,
+        UUID legalEntityId,
+        String legalEntityName,
         UUID managerId,
         String managerName,
         Instant createdAt,
         Instant updatedAt,
-        Long version
+        Long version,
+        java.util.List<String> roles,
+        String tempPassword
 ) {
 }

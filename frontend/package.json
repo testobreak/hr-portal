@@ -1,5 +1,5 @@
 {
-  "name": "hrms-frontend",
+  "name": "hr-portal-frontend",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -19,7 +19,6 @@
     "@tanstack/react-query": "^5.100.10",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "keycloak-js": "^26.2.0",
     "lucide-react": "^1.16.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

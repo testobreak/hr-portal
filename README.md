@@ -1,4 +1,4 @@
-# HRMS
+# HR Portal
 
 Internal HR / Resource Management / Billing Analytics platform.
 
@@ -112,6 +112,7 @@ HRMS/
 
 ## Documentation
 
+- [`docs/connections.md`](docs/connections.md) — complete reference for all URLs, ports, passwords, DB parameters & seeded accounts
 - [`docs/architecture.md`](docs/architecture.md) — system design, packaging, conventions
 - [`docs/rbac-matrix.md`](docs/rbac-matrix.md) — what each role can see and do
 - [`docs/adr/`](docs/adr/) — why we made the decisions we made

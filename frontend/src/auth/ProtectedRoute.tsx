@@ -17,7 +17,7 @@ export function ProtectedRoute({ children }: Props) {
   if (auth.error) {
     return (
       <main>
-        <h1>HRMS</h1>
+        <h1>HR Portal</h1>
         <p>Auth init failed: {auth.error}</p>
       </main>
     );

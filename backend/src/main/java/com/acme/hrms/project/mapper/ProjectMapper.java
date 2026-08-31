@@ -37,6 +37,7 @@ public interface ProjectMapper {
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "version", ignore = true)
+    @Mapping(target = "tenantId", ignore = true)
     Client toEntity(ClientCreateRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -46,6 +47,7 @@ public interface ProjectMapper {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "updatedBy", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
+    @Mapping(target = "tenantId", ignore = true)
     void apply(ClientUpdateRequest request, @MappingTarget Client entity);
 
     @Mapping(target = "clientId", source = "client.id")
@@ -63,6 +65,7 @@ public interface ProjectMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "client", ignore = true)
     @Mapping(target = "projectManager", ignore = true)
+    @Mapping(target = "tenantId", ignore = true)
     Project toEntity(ProjectCreateRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -74,6 +77,7 @@ public interface ProjectMapper {
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "client", ignore = true)
     @Mapping(target = "projectManager", ignore = true)
+    @Mapping(target = "tenantId", ignore = true)
     void apply(ProjectUpdateRequest request, @MappingTarget Project entity);
 
     @Mapping(target = "projectId", source = "project.id")
@@ -92,6 +96,7 @@ public interface ProjectMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "employee", ignore = true)
+    @Mapping(target = "tenantId", ignore = true)
     Allocation toEntity(AllocationCreateRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -102,6 +107,7 @@ public interface ProjectMapper {
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "project", ignore = true)
     @Mapping(target = "employee", ignore = true)
+    @Mapping(target = "tenantId", ignore = true)
     void apply(AllocationUpdateRequest request, @MappingTarget Allocation entity);
 
     @Named("fullName")

@@ -8,6 +8,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { HomePage } from '@/pages/Home';
 import { NotFoundPage } from '@/pages/NotFound';
 
+const LoginPage = lazy(() =>
+  import('@/pages/Login').then((m) => ({ default: m.LoginPage })),
+);
+
 const DashboardPage = lazy(() =>
   import('@/pages/Dashboard').then((m) => ({ default: m.DashboardPage })),
 );
@@ -44,6 +48,36 @@ const AuditPage = lazy(() => import('@/pages/Audit').then((m) => ({ default: m.A
 const SettingsPage = lazy(() =>
   import('@/pages/Settings').then((m) => ({ default: m.SettingsPage })),
 );
+const ProfilePage = lazy(() =>
+  import('@/pages/Profile').then((m) => ({ default: m.ProfilePage })),
+);
+const DirectoryPage = lazy(() =>
+  import('@/pages/Directory').then((m) => ({ default: m.DirectoryPage })),
+);
+const LeavePage = lazy(() =>
+  import('@/pages/Leave').then((m) => ({ default: m.LeavePage })),
+);
+const AnnouncementsPage = lazy(() =>
+  import('@/pages/Announcements').then((m) => ({ default: m.AnnouncementsPage })),
+);
+const RecruitmentPage = lazy(() =>
+  import('@/pages/Recruitment').then((m) => ({ default: m.RecruitmentPage })),
+);
+const CareersPage = lazy(() =>
+  import('@/pages/Careers').then((m) => ({ default: m.CareersPage })),
+);
+const CandidateOfferPage = lazy(() =>
+  import('@/pages/CandidateOffer').then((m) => ({ default: m.CandidateOfferPage })),
+);
+const OnboardingPage = lazy(() =>
+  import('@/pages/Onboarding').then((m) => ({ default: m.OnboardingPage })),
+);
+const TimePage = lazy(() =>
+  import('@/pages/Time').then((m) => ({ default: m.TimePage })),
+);
+const PayrollPage = lazy(() =>
+  import('@/pages/Payroll').then((m) => ({ default: m.PayrollPage })),
+);
 
 function PageFallback() {
   return (
@@ -68,11 +102,80 @@ export function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/careers" element={<CareersPage />} />
+      <Route path="/candidate/offers/:secureToken" element={<CandidateOfferPage />} />
       <Route
         path="/dashboard"
         element={
           <AppShell>
             <DashboardPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/onboarding"
+        element={
+          <AppShell>
+            <OnboardingPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/time"
+        element={
+          <AppShell>
+            <TimePage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/payroll"
+        element={
+          <AppShell>
+            <RoleRoute roles={[Roles.SUPER_ADMIN, Roles.HR_ADMIN, Roles.FINANCE_ADMIN]}>
+              <PayrollPage />
+            </RoleRoute>
+          </AppShell>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <AppShell>
+            <ProfilePage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/directory"
+        element={
+          <AppShell>
+            <DirectoryPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/leave"
+        element={
+          <AppShell>
+            <LeavePage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/announcements"
+        element={
+          <AppShell>
+            <AnnouncementsPage />
+          </AppShell>
+        }
+      />
+      <Route
+        path="/recruitment"
+        element={
+          <AppShell>
+            <RecruitmentPage />
           </AppShell>
         }
       />

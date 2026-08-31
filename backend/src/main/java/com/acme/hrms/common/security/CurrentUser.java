@@ -24,7 +24,8 @@ public record CurrentUser(
         UUID subjectUuid,
         String username,
         String email,
-        Set<String> roles
+        Set<String> roles,
+        UUID tenantId
 ) {
 
     public boolean hasRole(String role) {
@@ -57,7 +58,16 @@ public record CurrentUser(
         String username = jwt.getClaimAsString("preferred_username");
         String email = jwt.getClaimAsString("email");
         Set<String> roles = JwtRoleConverter.rolesOf(jwt);
-        return new CurrentUser(subject, username, email, roles);
+        String tenantClaim = jwt.getClaimAsString("tenant_id");
+        UUID tenantId = null;
+        if (tenantClaim != null && !tenantClaim.isBlank()) {
+            try {
+                tenantId = UUID.fromString(tenantClaim.trim());
+            } catch (IllegalArgumentException e) {
+                // Ignore malformed UUID
+            }
+        }
+        return new CurrentUser(subject, username, email, roles, tenantId);
     }
 
     private static UUID parseSubjectAsUuid(String subject) {

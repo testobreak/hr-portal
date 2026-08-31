@@ -1,6 +1,9 @@
 package com.acme.hrms;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -27,6 +30,9 @@ import org.testcontainers.utility.DockerImageName;
 @Testcontainers
 public abstract class AbstractIntegrationTest {
 
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
     @SuppressWarnings("resource")
     static final PostgreSQLContainer<?> POSTGRES =
             new PostgreSQLContainer<>(DockerImageName.parse("postgres:18"))
@@ -36,6 +42,54 @@ public abstract class AbstractIntegrationTest {
 
     static {
         POSTGRES.start();
+    }
+
+    @BeforeEach
+    public void cleanDatabase() {
+        jdbcTemplate.execute("TRUNCATE TABLE workflow_definition CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE announcement_acknowledgment CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE announcement_delivery CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE announcement_audience_rule CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE announcement CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE document_category CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE leave_accrual_run_item CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE leave_accrual_run CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE leave_request_day CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE leave_request CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE leave_ledger_entry CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE employee_work_schedule CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE work_schedule_day CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE work_schedule CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE holiday CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE holiday_calendar CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE leave_policy_assignment CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE leave_policy_version CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE leave_policy CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE leave_type CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE manager_delegation CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE manager_hierarchy_projection CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE employee_certification CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE employee_skill CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE employee_experience CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE employee_education CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE employee_dependent CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE employee_emergency_contact CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE profile_change_request CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE profile_field_definition CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE allocation CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE project CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE client CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE salary_history CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE employee_document CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE employee_assignment_history CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE approval_request CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE outbox_event CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE employee CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE department CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE designation CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE location CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE legal_entity CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE audit_log CASCADE");
     }
 
     @DynamicPropertySource
@@ -48,3 +102,4 @@ public abstract class AbstractIntegrationTest {
         registry.add("spring.flyway.password", POSTGRES::getPassword);
     }
 }
+

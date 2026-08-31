@@ -47,6 +47,16 @@ public final class LookupSpecifications {
                 cb.like(cb.lower(root.get("country")), needle));
     }
 
+    public static Specification<com.acme.hrms.employee.entity.LegalEntity> legalEntitySearch(String queryText) {
+        if (queryText == null || queryText.isBlank()) {
+            return all();
+        }
+        String needle = "%" + queryText.trim().toLowerCase(Locale.ROOT) + "%";
+        return (root, query, cb) -> cb.or(
+                cb.like(cb.lower(root.get("code")), needle),
+                cb.like(cb.lower(root.get("name")), needle));
+    }
+
     private static <T> Specification<T> all() {
         return (root, query, cb) -> cb.conjunction();
     }

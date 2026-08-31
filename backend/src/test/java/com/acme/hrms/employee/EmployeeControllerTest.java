@@ -119,13 +119,13 @@ class EmployeeControllerTest extends AbstractIntegrationTest {
 
     private Employee baseEmp(String code, String first, String last, String email, UUID kc) {
         Employee e = new Employee();
+        e.setId(kc);
         e.setEmployeeCode(code);
         e.setFirstName(first);
         e.setLastName(last);
         e.setEmail(email);
         e.setDateOfJoining(LocalDate.now().minusYears(1));
         e.setEmploymentStatus(EmploymentStatus.ACTIVE);
-        e.setKeycloakUserId(kc);
         return e;
     }
 

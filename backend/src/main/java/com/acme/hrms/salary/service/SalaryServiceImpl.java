@@ -124,7 +124,7 @@ public class SalaryServiceImpl implements SalaryService {
         if (subject == null) {
             throw new ForbiddenAccessException("Authenticated subject is not a UUID");
         }
-        return employees.findByKeycloakUserId(subject)
+        return employees.findById(subject)
                 .orElseThrow(() -> new ForbiddenAccessException("No employee is linked to the authenticated subject"));
     }
 

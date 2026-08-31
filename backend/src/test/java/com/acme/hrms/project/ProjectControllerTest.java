@@ -303,13 +303,13 @@ class ProjectControllerTest extends AbstractIntegrationTest {
 
     private Employee employee(String code, String first, String last, String email, UUID keycloakUserId) {
         Employee employee = new Employee();
+        employee.setId(keycloakUserId);
         employee.setEmployeeCode(code);
         employee.setFirstName(first);
         employee.setLastName(last);
         employee.setEmail(email);
         employee.setDateOfJoining(LocalDate.now().minusYears(1));
         employee.setEmploymentStatus(EmploymentStatus.ACTIVE);
-        employee.setKeycloakUserId(keycloakUserId);
         return employee;
     }
 

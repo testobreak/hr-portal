@@ -30,6 +30,7 @@ public record EmployeeUpdateRequest(
         UUID departmentId,
         UUID designationId,
         UUID locationId,
+        UUID legalEntityId,
         UUID managerId,
         @NotNull Long version
 ) {

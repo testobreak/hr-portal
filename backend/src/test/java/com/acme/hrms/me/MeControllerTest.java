@@ -52,8 +52,7 @@ class MeControllerTest extends AbstractIntegrationTest {
                                         .subject(subject.toString())
                                         .claim("preferred_username", "hr@acme.local")
                                         .claim("email", "hr@acme.local")
-                                        .claim("realm_access", Map.of(
-                                                "roles", List.of(Roles.HR_ADMIN, Roles.EMPLOYEE))))
+                                        .claim("roles", List.of(Roles.HR_ADMIN, Roles.EMPLOYEE)))
                                 .authorities(
                                         new SimpleGrantedAuthority(Roles.AUTHORITY_PREFIX + Roles.HR_ADMIN),
                                         new SimpleGrantedAuthority(Roles.AUTHORITY_PREFIX + Roles.EMPLOYEE))))

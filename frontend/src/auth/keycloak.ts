@@ -1,44 +1,18 @@
-import Keycloak from 'keycloak-js';
+let localToken: string | null = localStorage.getItem('hrms_token');
 
-let keycloakInstance: Keycloak | null = null;
-
-function stripTrailingSlash(url: string): string {
-  return url.replace(/\/+$/, '');
-}
-
-export function createKeycloak(): Keycloak {
-  const baseUrl = import.meta.env.VITE_KEYCLOAK_URL;
-  const realm = import.meta.env.VITE_KEYCLOAK_REALM;
-  const clientId = import.meta.env.VITE_KEYCLOAK_CLIENT_ID;
-
-  if (!baseUrl || !realm || !clientId) {
-    throw new Error(
-      'Missing VITE_KEYCLOAK_URL, VITE_KEYCLOAK_REALM, or VITE_KEYCLOAK_CLIENT_ID. See .env.example.',
-    );
+export function setLocalToken(token: string | null): void {
+  localToken = token;
+  if (token) {
+    localStorage.setItem('hrms_token', token);
+  } else {
+    localStorage.removeItem('hrms_token');
   }
-
-  const issuer = `${stripTrailingSlash(baseUrl)}/realms/${encodeURIComponent(realm)}`;
-
-  return new Keycloak({
-    clientId,
-    oidcProvider: issuer,
-  });
-}
-
-export function setKeycloakInstance(instance: Keycloak | null): void {
-  keycloakInstance = instance;
 }
 
 export async function getAccessToken(): Promise<string> {
-  if (!keycloakInstance) {
-    throw new Error('Auth client is not initialized');
-  }
-
-  await keycloakInstance.updateToken(30);
-
-  if (!keycloakInstance.token) {
+  const token = localToken || localStorage.getItem('hrms_token');
+  if (!token) {
     throw new Error('Access token is missing');
   }
-
-  return keycloakInstance.token;
+  return token;
 }

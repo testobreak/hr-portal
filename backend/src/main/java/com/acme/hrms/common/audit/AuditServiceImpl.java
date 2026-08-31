@@ -3,6 +3,7 @@ package com.acme.hrms.common.audit;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -53,6 +54,10 @@ public class AuditServiceImpl implements AuditService {
         }
         try {
             Optional<CurrentUser> actor = CurrentUser.fromSecurityContext();
+            UUID tenantId = com.acme.hrms.common.tenant.TenantContext.getTenantId();
+            if (tenantId == null) {
+                tenantId = UUID.fromString("00000000-0000-0000-0000-000000000000");
+            }
             AuditLog row = AuditLog.builder()
                     .at(Instant.now(clock))
                     .actorId(actor.map(CurrentUser::subjectUuid).orElse(null))
@@ -65,6 +70,7 @@ public class AuditServiceImpl implements AuditService {
                     .beforeJson(event.beforeJson())
                     .afterJson(event.afterJson())
                     .detail(event.detail())
+                    .tenantId(tenantId)
                     .build();
             repository.save(row);
         } catch (Exception ex) {

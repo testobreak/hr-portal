@@ -72,8 +72,14 @@ public class Employee extends BaseEntity {
     @Column(name = "employment_status", nullable = false, length = 32)
     private EmploymentStatus employmentStatus;
 
-    @Column(name = "keycloak_user_id")
-    private UUID keycloakUserId;
+    @Column(name = "password_hash")
+    private String passwordHash;
+
+    @jakarta.persistence.ElementCollection(fetch = FetchType.EAGER)
+    @jakarta.persistence.CollectionTable(name = "employee_role", joinColumns = @JoinColumn(name = "employee_id"))
+    @Column(name = "role")
+    @Builder.Default
+    private java.util.Set<String> roles = new java.util.HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "department_id")
@@ -88,6 +94,19 @@ public class Employee extends BaseEntity {
     private Location location;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "legal_entity_id")
+    private LegalEntity legalEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
     private Employee manager;
+
+    @Column(name = "preferred_name")
+    private String preferredName;
+
+    @Column(name = "bank_account_number")
+    private String bankAccountNumber;
+
+    @Column(name = "tax_id")
+    private String taxId;
 }

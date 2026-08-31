@@ -91,7 +91,7 @@ public class DashboardServiceImpl implements DashboardService {
             return EmployeeSpecifications.alwaysTrue();
         }
         if (user.hasRole(Roles.MANAGER)) {
-            return employees.findByKeycloakUserId(user.subjectUuid())
+            return employees.findById(user.subjectUuid())
                     .map(self -> EmployeeSpecifications.idIn(employees.findDescendantIds(self.getId())))
                     .orElseGet(EmployeeSpecifications::alwaysFalse);
         }

@@ -28,6 +28,9 @@ public record EmployeeCreateRequest(
         UUID departmentId,
         UUID designationId,
         UUID locationId,
-        UUID managerId
+        UUID legalEntityId,
+        UUID managerId,
+        java.util.List<String> roles,
+        String keycloakPassword
 ) {
 }

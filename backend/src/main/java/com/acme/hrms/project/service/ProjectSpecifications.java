@@ -45,9 +45,9 @@ final class ProjectSpecifications {
             var memberSubquery = query.subquery(UUID.class);
             var allocation = memberSubquery.from(Allocation.class);
             memberSubquery.select(allocation.get("project").get("id"))
-                    .where(cb.equal(allocation.get("employee").get("keycloakUserId"), subjectUuid));
+                    .where(cb.equal(allocation.get("employee").get("id"), subjectUuid));
             return cb.or(
-                    cb.equal(root.get("projectManager").get("keycloakUserId"), subjectUuid),
+                    cb.equal(root.get("projectManager").get("id"), subjectUuid),
                     root.get("id").in(memberSubquery));
         };
     }
@@ -60,7 +60,7 @@ final class ProjectSpecifications {
             var subquery = query.subquery(UUID.class);
             var allocation = subquery.from(Allocation.class);
             subquery.select(allocation.get("project").get("id"))
-                    .where(cb.equal(allocation.get("employee").get("keycloakUserId"), subjectUuid));
+                    .where(cb.equal(allocation.get("employee").get("id"), subjectUuid));
             return root.get("id").in(subquery);
         };
     }

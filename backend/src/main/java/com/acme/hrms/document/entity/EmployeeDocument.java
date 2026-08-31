@@ -4,6 +4,7 @@ import com.acme.hrms.common.persistence.BaseEntity;
 import com.acme.hrms.document.DocumentType;
 import com.acme.hrms.document.UploadStatus;
 import com.acme.hrms.employee.entity.Employee;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -61,4 +62,26 @@ public class EmployeeDocument extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "upload_status", nullable = false, length = 16)
     private UploadStatus uploadStatus;
+
+    @Column(name = "classification")
+    private String classification;
+
+    @Builder.Default
+    @Column(name = "verification_status", nullable = false)
+    private String verificationStatus = "PENDING"; // PENDING, VERIFIED, REJECTED
+
+    @Column(name = "expiry_date")
+    private java.time.LocalDate expiryDate;
+
+    @Column(name = "issued_date")
+    private java.time.LocalDate issuedDate;
+
+    @Column(name = "verified_by")
+    private UUID verifiedBy;
+
+    @Column(name = "verified_at")
+    private java.time.Instant verifiedAt;
+
+    @Column(name = "rejection_reason")
+    private String rejectionReason;
 }

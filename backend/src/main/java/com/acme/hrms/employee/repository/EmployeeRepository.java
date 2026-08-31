@@ -21,8 +21,6 @@ public interface EmployeeRepository
 
     Optional<Employee> findByEmployeeCodeIgnoreCase(String employeeCode);
 
-    Optional<Employee> findByKeycloakUserId(UUID keycloakUserId);
-
     /**
      * Walk the manager tree under {@code rootId} (inclusive) and return the
      * IDs of the root and every descendant. Excludes soft-deleted rows.
@@ -55,7 +53,7 @@ public interface EmployeeRepository
               FROM allocation a
               JOIN project p ON p.id = a.project_id
               JOIN employee pm ON pm.id = p.project_manager_id
-             WHERE pm.keycloak_user_id = :managerSubject
+             WHERE pm.id = :managerSubject
                AND pm.deleted_at IS NULL
                AND p.deleted_at IS NULL
                AND a.deleted_at IS NULL

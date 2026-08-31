@@ -8,7 +8,7 @@ export function SettingsPage() {
     ['API base', apiBase],
     ['Current user', me?.email ?? me?.username ?? '-'],
     ['Roles', (me?.roles ?? []).join(', ') || '-'],
-    ['Auth mode', 'Keycloak OIDC / bearer JWT'],
+    ['Auth mode', 'Custom Database JWT'],
     ['Storage', 'Presigned document workflow'],
     ['Default timezone', 'Asia/Kolkata'],
   ];
