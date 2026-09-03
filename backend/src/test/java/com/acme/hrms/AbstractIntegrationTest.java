@@ -35,7 +35,7 @@ public abstract class AbstractIntegrationTest {
 
     @SuppressWarnings("resource")
     static final PostgreSQLContainer<?> POSTGRES =
-            new PostgreSQLContainer<>(DockerImageName.parse("postgres:18"))
+            new PostgreSQLContainer<>(DockerImageName.parse("postgres:17-alpine"))
                     .withDatabaseName("hrms")
                     .withUsername("hrms")
                     .withPassword("hrms_test");
@@ -46,6 +46,28 @@ public abstract class AbstractIntegrationTest {
 
     @BeforeEach
     public void cleanDatabase() {
+        jdbcTemplate.execute("TRUNCATE TABLE employee_role CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE timesheet_line CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE timesheet CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE attendance_record CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE payslip_item CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE payslip CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE payroll_run CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE background_check CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE asset_request CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE onboarding_document CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE onboarding_task CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE onboarding_plan CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE pre_hire CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE job_offer CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE interview_feedback CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE interview CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE application_stage_history CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE job_application CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE candidate CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE job_posting CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE job_opening CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE job_requisition CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE workflow_definition CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE announcement_acknowledgment CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE announcement_delivery CASCADE");

@@ -10,14 +10,25 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 -- citext: case-insensitive text for emails, slugs.
 CREATE EXTENSION IF NOT EXISTS citext;
 
--- Note on UUIDv7: PostgreSQL 18 ships uuidv7() as a built-in function.
--- We use it directly in DEFAULT clauses; no extension required.
---   id uuid PRIMARY KEY DEFAULT uuidv7()
-
--- Sanity check: fail loudly if someone tries to run this on PG < 18.
+-- Compatibility: uuidv7()
+-- Built into PG18+, for PG 16/17 fallback to random uuid if not available.
 DO $$
 BEGIN
-  IF current_setting('server_version_num')::int < 180000 THEN
-    RAISE EXCEPTION 'HRMS requires PostgreSQL 18+; running %', version();
+  IF to_regprocedure('pg_catalog.uuidv7()') IS NULL THEN
+    EXECUTE $fn$
+      CREATE OR REPLACE FUNCTION uuidv7()
+      RETURNS uuid
+      LANGUAGE sql
+      VOLATILE
+      AS 'SELECT gen_random_uuid()'
+    $fn$;
+  END IF;
+END $$;
+
+-- Sanity check: fail loudly if someone tries to run this on PG < 16.
+DO $$
+BEGIN
+  IF current_setting('server_version_num')::int < 160000 THEN
+    RAISE EXCEPTION 'HRMS requires PostgreSQL 16+; running %', version();
   END IF;
 END $$;

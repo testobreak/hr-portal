@@ -5,7 +5,7 @@ spring:
   datasource:
     url: ${SPRING_DATASOURCE_URL:${HRMS_DB_URL:jdbc:postgresql://localhost:${POSTGRES_PORT:5432}/${POSTGRES_DB:hrms}}}
     username: ${SPRING_DATASOURCE_USERNAME:${HRMS_DB_USER:${POSTGRES_USER:hrms}}}
-    password: hrms_local_dev_change_me
+    password: ${SPRING_DATASOURCE_PASSWORD:${HRMS_DB_PASSWORD:${POSTGRES_PASSWORD:hrms_local_dev_change_me}}}
 
 hrms:
   storage:

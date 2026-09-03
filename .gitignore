@@ -1,55 +1,57 @@
-# --- Secrets ----------------------------------------------------------------
-.env
-.env.local
-.env.*.local
-*.pem
-*.key
-*.p12
-*.jks
-
-# --- Java / Maven -----------------------------------------------------------
-target/
-build/
-*.class
-*.jar
-*.war
-*.ear
-*.log
-hs_err_pid*
-.mvn/wrapper/maven-wrapper.jar
-
-# --- Node / Vite ------------------------------------------------------------
-node_modules/
-dist/
-dist-ssr/
-.vite/
-.cache/
-*.tsbuildinfo
-coverage/
-playwright-report/
-test-results/
-
-# --- IDE --------------------------------------------------------------------
-.idea/
-*.iml
-*.ipr
-*.iws
-.vscode/*
-!.vscode/settings.json
-!.vscode/extensions.json
-!.vscode/launch.json
-.fleet/
-
-# --- OS ---------------------------------------------------------------------
-.DS_Store
-Thumbs.db
-desktop.ini
-$RECYCLE.BIN/
-
-# --- Docker volumes / runtime artifacts -------------------------------------
-infra/.volumes/
-
-# --- Generated -------------------------------------------------------------
-frontend/src/api/generated/
-backend/src/main/generated/
+# --- Secrets ----------------------------------------------------------------
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+*.pem
+*.key
+*.p12
+*.jks
 
+# --- Java / Maven -----------------------------------------------------------
+target/
+build/
+*.class
+*.jar
+*.war
+*.ear
+*.log
+hs_err_pid*
+.mvn/wrapper/maven-wrapper.jar
+
+# --- Node / Vite ------------------------------------------------------------
+node_modules/
+dist/
+dist-ssr/
+.vite/
+.cache/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+
+# --- IDE --------------------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+.fleet/
+
+# --- OS ---------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# --- Docker volumes / runtime artifacts / backups ---------------------------
+infra/.volumes/
+infra/postgres/backups/
+
+# --- Generated -------------------------------------------------------------
+frontend/src/api/generated/
+backend/src/main/generated/
