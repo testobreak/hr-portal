@@ -76,7 +76,13 @@ public class AttendanceController {
     @PreAuthorize("hasAnyRole('" + Roles.SUPER_ADMIN + "','" + Roles.HR_ADMIN + "','" + Roles.EMPLOYEE + "','" + Roles.MANAGER + "')")
     @Operation(summary = "Get the active clock-in session details for current logged-in employee")
     public AttendanceResponse getLatestSessionMe() {
-        return service.getLatestLog(getMyId());
+        UUID subjectUuid = CurrentUser.fromSecurityContext()
+                .map(CurrentUser::subjectUuid)
+                .orElse(null);
+        if (subjectUuid == null || !employeeRepository.existsById(subjectUuid)) {
+            return null;
+        }
+        return service.getLatestLog(subjectUuid);
     }
 
     @GetMapping("/me/logs")
@@ -84,7 +90,13 @@ public class AttendanceController {
     @Operation(summary = "Get daily clock logs for current logged-in employee within a period")
     public List<AttendanceResponse> getLogsMe(@RequestParam String startIso,
                                               @RequestParam String endIso) {
-        return service.getLogsForPeriod(getMyId(), Instant.parse(startIso), Instant.parse(endIso));
+        UUID subjectUuid = CurrentUser.fromSecurityContext()
+                .map(CurrentUser::subjectUuid)
+                .orElse(null);
+        if (subjectUuid == null || !employeeRepository.existsById(subjectUuid)) {
+            return List.of();
+        }
+        return service.getLogsForPeriod(subjectUuid, Instant.parse(startIso), Instant.parse(endIso));
     }
 
     @PostMapping("/me/timesheets")
@@ -98,7 +110,13 @@ public class AttendanceController {
     @PreAuthorize("hasAnyRole('" + Roles.SUPER_ADMIN + "','" + Roles.HR_ADMIN + "','" + Roles.EMPLOYEE + "','" + Roles.MANAGER + "')")
     @Operation(summary = "List timesheets for current logged-in employee")
     public List<TimesheetResponse> getEmployeeTimesheetsMe() {
-        return timesheetService.listEmployeeTimesheets(getMyId());
+        UUID subjectUuid = CurrentUser.fromSecurityContext()
+                .map(CurrentUser::subjectUuid)
+                .orElse(null);
+        if (subjectUuid == null || !employeeRepository.existsById(subjectUuid)) {
+            return List.of();
+        }
+        return timesheetService.listEmployeeTimesheets(subjectUuid);
     }
 
     @PostMapping("/employees/{employeeId}/clock-in")

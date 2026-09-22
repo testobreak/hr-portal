@@ -33,10 +33,12 @@ public class DirectoryController {
     }
 
     @GetMapping("/employees/{employeeId}")
-    public ResponseEntity<DirectoryEmployeeResponse> getDetails(@PathVariable UUID employeeId) {
-        Employee emp = employeeRepository.findById(employeeId)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found: " + employeeId));
-        return ResponseEntity.ok(toDirectoryResponse(emp));
+    public ResponseEntity<?> getDetails(@PathVariable UUID employeeId) {
+        java.util.Optional<Employee> empOpt = employeeRepository.findById(employeeId);
+        if (empOpt.isEmpty()) {
+            return ResponseEntity.ok(com.acme.hrms.common.error.DataNotFoundResponse.of("Employee not found: " + employeeId, "/api/v1/directory/employees/" + employeeId));
+        }
+        return ResponseEntity.ok(toDirectoryResponse(empOpt.get()));
     }
 
     private DirectoryEmployeeResponse toDirectoryResponse(Employee emp) {

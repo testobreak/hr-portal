@@ -55,12 +55,11 @@ public class LeaveRequestController {
     public ResponseEntity<List<LeaveRequestResponseDto>> getMyRequests() {
         UUID subjectUuid = CurrentUser.fromSecurityContext()
                 .map(CurrentUser::subjectUuid)
-                .orElseThrow(() -> new IllegalStateException("User not found in security context"));
-        UUID myId = subjectUuid;
-        if (!employeeRepository.existsById(myId)) {
-            throw NotFoundException.of("Employee", myId);
+                .orElse(null);
+        if (subjectUuid == null || !employeeRepository.existsById(subjectUuid)) {
+            return ResponseEntity.ok(List.of());
         }
-        return ResponseEntity.ok(leaveRequestService.getMyRequests(myId));
+        return ResponseEntity.ok(leaveRequestService.getMyRequests(subjectUuid));
     }
 
     @PostMapping("/leave-requests/{requestId}/submit")
@@ -81,11 +80,10 @@ public class LeaveRequestController {
             @RequestParam(name = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
         UUID subjectUuid = CurrentUser.fromSecurityContext()
                 .map(CurrentUser::subjectUuid)
-                .orElseThrow(() -> new IllegalStateException("User not found in security context"));
-        UUID managerId = subjectUuid;
-        if (!employeeRepository.existsById(managerId)) {
-            throw NotFoundException.of("Employee", managerId);
+                .orElse(null);
+        if (subjectUuid == null || !employeeRepository.existsById(subjectUuid)) {
+            return ResponseEntity.ok(List.of());
         }
-        return ResponseEntity.ok(leaveRequestService.getTeamCalendar(managerId, startDate, endDate));
+        return ResponseEntity.ok(leaveRequestService.getTeamCalendar(subjectUuid, startDate, endDate));
     }
 }

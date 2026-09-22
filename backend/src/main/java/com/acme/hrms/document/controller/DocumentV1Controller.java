@@ -39,10 +39,16 @@ public class DocumentV1Controller {
     public ResponseEntity<List<EmployeeDocument>> getMyDocuments() {
         UUID subjectUuid = CurrentUser.fromSecurityContext()
                 .map(CurrentUser::subjectUuid)
-                .orElseThrow(() -> new IllegalStateException("User not found in security context"));
+                .orElse(null);
 
-        Employee employee = employeeRepository.findById(subjectUuid)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+        if (subjectUuid == null) {
+            return ResponseEntity.ok(List.of());
+        }
+
+        Employee employee = employeeRepository.findById(subjectUuid).orElse(null);
+        if (employee == null) {
+            return ResponseEntity.ok(List.of());
+        }
         UUID myId = employee.getId();
 
         initDefaults(employee.getTenantId());
@@ -67,7 +73,7 @@ public class DocumentV1Controller {
                 .orElseThrow(() -> new IllegalStateException("User not found in security context"));
 
         Employee employee = employeeRepository.findById(subjectUuid)
-                .orElseThrow(() -> new IllegalArgumentException("Employee not found"));
+                .orElseThrow(() -> com.acme.hrms.common.error.NotFoundException.of("Employee", subjectUuid));
 
         EmployeeDocument doc = EmployeeDocument.builder()
                 .employee(employee)
@@ -90,7 +96,7 @@ public class DocumentV1Controller {
     @PostMapping("/documents/{documentId}/verify")
     public ResponseEntity<Void> verifyDocument(@PathVariable UUID documentId) {
         EmployeeDocument doc = documentRepository.findById(documentId)
-                .orElseThrow(() -> new IllegalArgumentException("Document not found: " + documentId));
+                .orElseThrow(() -> com.acme.hrms.common.error.NotFoundException.of("EmployeeDocument", documentId));
 
         UUID verifierId = CurrentUser.fromSecurityContext()
                 .map(CurrentUser::subjectUuid)
@@ -109,7 +115,7 @@ public class DocumentV1Controller {
             @PathVariable UUID documentId,
             @RequestParam(name = "reason") String reason) {
         EmployeeDocument doc = documentRepository.findById(documentId)
-                .orElseThrow(() -> new IllegalArgumentException("Document not found: " + documentId));
+                .orElseThrow(() -> com.acme.hrms.common.error.NotFoundException.of("EmployeeDocument", documentId));
 
         UUID verifierId = CurrentUser.fromSecurityContext()
                 .map(CurrentUser::subjectUuid)

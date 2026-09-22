@@ -43,14 +43,20 @@ public class SalaryServiceImpl implements SalaryService {
     @Override
     @Transactional(readOnly = true)
     public List<SalaryResponse> listForSelf(CurrentUser user) {
-        Employee self = loadEmployeeBySubject(user.subjectUuid());
-        auditService.record(AuditEvent.of(AuditAction.READ_SENSITIVE, ENTITY)
-                .withEntityId(self.getId())
-                .withDetail("self salary history read"));
-        return salaries.findByEmployeeIdOrderByEffectiveFromDescCreatedAtDesc(self.getId())
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        if (user == null || user.subjectUuid() == null) {
+            return List.of();
+        }
+        return employees.findById(user.subjectUuid())
+                .map(self -> {
+                    auditService.record(AuditEvent.of(AuditAction.READ_SENSITIVE, ENTITY)
+                            .withEntityId(self.getId())
+                            .withDetail("self salary history read"));
+                    return salaries.findByEmployeeIdOrderByEffectiveFromDescCreatedAtDesc(self.getId())
+                            .stream()
+                            .map(this::toResponse)
+                            .toList();
+                })
+                .orElse(List.of());
     }
 
     @Override
@@ -66,8 +72,7 @@ public class SalaryServiceImpl implements SalaryService {
                     .toList();
         }
 
-        Employee self = loadEmployeeBySubject(user.subjectUuid());
-        if (!self.getId().equals(employeeId)) {
+        if (user == null || user.subjectUuid() == null || !user.subjectUuid().equals(employeeId)) {
             throw new ForbiddenAccessException("Salary can only be read for the authenticated employee");
         }
         return listForSelf(user);

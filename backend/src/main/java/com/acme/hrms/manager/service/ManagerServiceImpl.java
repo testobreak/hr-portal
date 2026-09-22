@@ -99,7 +99,7 @@ public class ManagerServiceImpl implements ManagerService {
     @Transactional
     public void revokeDelegation(UUID delegationId) {
         ManagerDelegation delegation = delegationRepository.findById(delegationId)
-                .orElseThrow(() -> new IllegalArgumentException("Delegation not found: " + delegationId));
+                .orElseThrow(() -> com.acme.hrms.common.error.NotFoundException.of("Delegation", delegationId));
         delegation.setStatus("REVOKED");
         delegationRepository.save(delegation);
     }

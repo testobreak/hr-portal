@@ -29,24 +29,22 @@ public class LeaveController {
     public ResponseEntity<List<LeaveBalanceResponse>> getMyBalances() {
         UUID subjectUuid = CurrentUser.fromSecurityContext()
                 .map(CurrentUser::subjectUuid)
-                .orElseThrow(() -> new IllegalStateException("User not found in security context"));
-        UUID myId = subjectUuid;
-        if (!employeeRepository.existsById(myId)) {
-            throw NotFoundException.of("Employee", myId);
+                .orElse(null);
+        if (subjectUuid == null || !employeeRepository.existsById(subjectUuid)) {
+            return ResponseEntity.ok(List.of());
         }
-        return ResponseEntity.ok(leaveService.getLeaveBalances(myId));
+        return ResponseEntity.ok(leaveService.getLeaveBalances(subjectUuid));
     }
 
     @GetMapping("/me/leave-balances/{leaveTypeId}/ledger")
     public ResponseEntity<List<LeaveLedgerEntryDto>> getMyLedger(@PathVariable UUID leaveTypeId) {
         UUID subjectUuid = CurrentUser.fromSecurityContext()
                 .map(CurrentUser::subjectUuid)
-                .orElseThrow(() -> new IllegalStateException("User not found in security context"));
-        UUID myId = subjectUuid;
-        if (!employeeRepository.existsById(myId)) {
-            throw NotFoundException.of("Employee", myId);
+                .orElse(null);
+        if (subjectUuid == null || !employeeRepository.existsById(subjectUuid)) {
+            return ResponseEntity.ok(List.of());
         }
-        return ResponseEntity.ok(leaveService.getLedger(myId, leaveTypeId));
+        return ResponseEntity.ok(leaveService.getLedger(subjectUuid, leaveTypeId));
     }
 
     @PostMapping("/admin/leave-adjustments")

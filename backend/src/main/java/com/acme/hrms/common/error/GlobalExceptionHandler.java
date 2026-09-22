@@ -117,8 +117,48 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(NotFoundException ex, HttpServletRequest req) {
+    public ResponseEntity<?> handleNotFound(NotFoundException ex, HttpServletRequest req) {
+        if (req != null && "GET".equalsIgnoreCase(req.getMethod())) {
+            log.info("GET {} -> 200 (Data does not exist: {})", req.getRequestURI(), ex.getMessage());
+            return ResponseEntity.ok(DataNotFoundResponse.of(ex.getMessage(), req.getRequestURI()));
+        }
         return build(ErrorCode.NOT_FOUND, ex.getMessage(), req, null);
+    }
+
+    @ExceptionHandler({java.util.NoSuchElementException.class, jakarta.persistence.EntityNotFoundException.class})
+    public ResponseEntity<?> handleNoSuchElement(Exception ex, HttpServletRequest req) {
+        String msg = ex.getMessage() != null ? ex.getMessage() : "Resource not found";
+        if (req != null && "GET".equalsIgnoreCase(req.getMethod())) {
+            log.info("GET {} -> 200 (Data does not exist: {})", req.getRequestURI(), msg);
+            return ResponseEntity.ok(DataNotFoundResponse.of(msg, req.getRequestURI()));
+        }
+        return build(ErrorCode.NOT_FOUND, msg, req, null);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest req) {
+        String msg = ex.getMessage() != null ? ex.getMessage() : "";
+        if (req != null && "GET".equalsIgnoreCase(req.getMethod()) && isNotFoundMessage(msg)) {
+            log.info("GET {} -> 200 (Data does not exist from IllegalArgumentException: {})", req.getRequestURI(), msg);
+            return ResponseEntity.ok(DataNotFoundResponse.of(msg, req.getRequestURI()));
+        }
+        log.warn("Bad request at {} {}: {}", req != null ? req.getMethod() : "?", req != null ? req.getRequestURI() : "?", msg);
+        return build(ErrorCode.BAD_REQUEST, msg.isEmpty() ? "Invalid request parameter" : msg, req, null);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<?> handleIllegalState(IllegalStateException ex, HttpServletRequest req) {
+        String msg = ex.getMessage() != null ? ex.getMessage() : "";
+        if (msg.contains("security context") || msg.contains("User not found")) {
+            return build(ErrorCode.UNAUTHORIZED, "Authentication is required", req, null);
+        }
+        log.warn("Illegal state at {} {}: {}", req != null ? req.getMethod() : "?", req != null ? req.getRequestURI() : "?", msg);
+        return build(ErrorCode.BAD_REQUEST, msg.isEmpty() ? "Illegal state" : msg, req, null);
+    }
+
+    private boolean isNotFoundMessage(String msg) {
+        String lower = msg.toLowerCase();
+        return lower.contains("not found") || lower.contains("does not exist");
     }
 
     @ExceptionHandler(ConflictException.class)

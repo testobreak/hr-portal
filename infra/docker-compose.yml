@@ -52,7 +52,7 @@ services:
     networks: [hrms-net]
 
   minio:
-    image: minio/minio:latest
+    image: quay.io/minio/minio:latest
     container_name: hrms-minio
     restart: unless-stopped
     command: ["server", "/data", "--console-address", ":9001"]
@@ -74,7 +74,7 @@ services:
   # One-shot init container: creates the documents bucket, enables versioning,
   # and exits. Re-running is idempotent.
   minio-bootstrap:
-    image: minio/mc:latest
+    image: quay.io/minio/mc:latest
     container_name: hrms-minio-bootstrap
     depends_on:
       minio:

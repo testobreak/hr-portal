@@ -112,7 +112,13 @@ public class PayrollController {
     @PreAuthorize("hasAnyRole('" + Roles.SUPER_ADMIN + "','" + Roles.HR_ADMIN + "','" + Roles.EMPLOYEE + "','" + Roles.MANAGER + "')")
     @Operation(summary = "List historical payslips for the current logged-in employee")
     public List<PayslipResponse> getMyPayslipsHistory() {
-        return service.listEmployeePayslips(getMyId());
+        UUID subjectUuid = com.acme.hrms.common.security.CurrentUser.fromSecurityContext()
+                .map(com.acme.hrms.common.security.CurrentUser::subjectUuid)
+                .orElse(null);
+        if (subjectUuid == null || !employeeRepository.existsById(subjectUuid)) {
+            return List.of();
+        }
+        return service.listEmployeePayslips(subjectUuid);
     }
 
     @GetMapping("/runs/{runId}/payslips/me")

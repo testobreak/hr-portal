@@ -31,12 +31,11 @@ public class ManagerController {
             @RequestParam(name = "scope", defaultValue = "direct") String scope) {
         UUID subjectUuid = CurrentUser.fromSecurityContext()
                 .map(CurrentUser::subjectUuid)
-                .orElseThrow(() -> new IllegalStateException("User not found in security context"));
-        UUID managerId = subjectUuid;
-        if (!employeeRepository.existsById(managerId)) {
-            throw NotFoundException.of("Employee", managerId);
+                .orElse(null);
+        if (subjectUuid == null || !employeeRepository.existsById(subjectUuid)) {
+            return ResponseEntity.ok(List.of());
         }
-        return ResponseEntity.ok(managerService.getTeam(managerId, scope));
+        return ResponseEntity.ok(managerService.getTeam(subjectUuid, scope));
     }
 
     @PostMapping("/delegations")

@@ -28,12 +28,11 @@ public class AnnouncementController {
     public ResponseEntity<List<Announcement>> getMyAnnouncements() {
         UUID subjectUuid = CurrentUser.fromSecurityContext()
                 .map(CurrentUser::subjectUuid)
-                .orElseThrow(() -> new IllegalStateException("User not found in security context"));
-        UUID myId = subjectUuid;
-        if (!employeeRepository.existsById(myId)) {
-            throw NotFoundException.of("Employee", myId);
+                .orElse(null);
+        if (subjectUuid == null || !employeeRepository.existsById(subjectUuid)) {
+            return ResponseEntity.ok(List.of());
         }
-        return ResponseEntity.ok(announcementService.getMyAnnouncements(myId));
+        return ResponseEntity.ok(announcementService.getMyAnnouncements(subjectUuid));
     }
 
     @PostMapping("/me/announcements/{announcementId}/read")

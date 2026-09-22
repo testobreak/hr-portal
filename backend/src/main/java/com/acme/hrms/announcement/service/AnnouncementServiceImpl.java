@@ -38,7 +38,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Transactional
     public Announcement publishAnnouncement(String title, String content, UUID authorId, UUID legalEntityId, UUID departmentId, UUID locationId) {
         Employee author = employeeRepository.findById(authorId)
-                .orElseThrow(() -> new IllegalArgumentException("Author not found: " + authorId));
+                .orElseThrow(() -> com.acme.hrms.common.error.NotFoundException.of("Employee", authorId));
 
         Announcement ann = Announcement.builder()
                 .title(title)
@@ -121,7 +121,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         if (existing.isPresent()) return;
 
         Announcement ann = announcementRepository.findById(announcementId)
-                .orElseThrow(() -> new IllegalArgumentException("Announcement not found"));
+                .orElseThrow(() -> new com.acme.hrms.common.error.NotFoundException("Announcement not found"));
 
         AnnouncementAcknowledgment ack = AnnouncementAcknowledgment.builder()
                 .announcementId(announcementId)
