@@ -112,6 +112,8 @@ HRMS/
 
 ## Documentation
 
+- [`docs/API_REFERENCE.md`](docs/API_REFERENCE.md) (or [`API_DOCUMENTATION.md`](API_DOCUMENTATION.md)) — complete REST API reference guide (135 endpoints, 177 operations, request/response models & RBAC matrix)
+- [`docs/SCHEMA_REFERENCE.md`](docs/SCHEMA_REFERENCE.md) (or [`SCHEMA_DOCUMENTATION.md`](SCHEMA_DOCUMENTATION.md)) — comprehensive DTO schema reference guide (108 schemas with validation rules & enterprise sample payloads)
 - [`docs/connections.md`](docs/connections.md) — complete reference for all URLs, ports, passwords, DB parameters & seeded accounts
 - [`docs/architecture.md`](docs/architecture.md) — system design, packaging, conventions
 - [`docs/rbac-matrix.md`](docs/rbac-matrix.md) — what each role can see and do

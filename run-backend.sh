@@ -12,7 +12,7 @@ if [ -f "${ENV_FILE}" ]; then
     echo "Loading environment from ${ENV_FILE}..."
     set -a
     # shellcheck disable=SC1090
-    source <(grep -E -v '^(#|[[:space:]]*$)' "${ENV_FILE}" | sed -E 's/^[[:space:]]*//')
+    source "${ENV_FILE}"
     set +a
 else
     echo "Warning: .env file not found at ${ENV_FILE}. Using default system environment."

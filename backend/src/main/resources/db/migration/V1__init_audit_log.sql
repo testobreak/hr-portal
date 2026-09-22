@@ -29,7 +29,7 @@ DO $$
 BEGIN
     IF to_regprocedure('pg_catalog.uuidv7()') IS NULL THEN
         EXECUTE $fn$
-            CREATE FUNCTION uuidv7()
+            CREATE OR REPLACE FUNCTION uuidv7()
             RETURNS uuid
             LANGUAGE sql
             VOLATILE

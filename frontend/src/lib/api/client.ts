@@ -56,15 +56,28 @@ async function request<T>(method: string, path: string, options: RequestOptions 
   }
 
   if (res.status === 204) {
-    return undefined as T;
+    return (null as unknown) as T;
+  }
+
+  const text = await res.text();
+  if (!text || text.trim() === '') {
+    return (null as unknown) as T;
   }
 
   const contentType = res.headers.get('content-type') ?? '';
   if (contentType.includes('json')) {
-    return (await res.json()) as T;
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      return (null as unknown) as T;
+    }
   }
 
-  return undefined as T;
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    return (text as unknown) as T;
+  }
 }
 
 export const api = {

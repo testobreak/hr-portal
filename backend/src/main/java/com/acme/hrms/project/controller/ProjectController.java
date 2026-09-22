@@ -23,9 +23,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.acme.hrms.common.security.CurrentUser;
 import com.acme.hrms.common.security.Roles;
+import com.acme.hrms.common.web.PageableUtils;
 import com.acme.hrms.project.dto.ProjectCreateRequest;
 import com.acme.hrms.project.dto.ProjectResponse;
 import com.acme.hrms.project.dto.ProjectUpdateRequest;
+import com.acme.hrms.project.entity.Project;
 import com.acme.hrms.project.service.ProjectService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,7 +49,7 @@ public class ProjectController {
     public Page<ProjectResponse> list(@AuthenticationPrincipal Jwt jwt,
                                       @RequestParam(name = "q", required = false) String query,
                                       Pageable pageable) {
-        return service.list(CurrentUser.from(jwt), query, pageable);
+        return service.list(CurrentUser.from(jwt), query, PageableUtils.sanitize(pageable, Project.class));
     }
 
     @GetMapping("/{id}")
