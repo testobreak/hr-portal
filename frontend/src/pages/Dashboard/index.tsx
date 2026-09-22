@@ -97,10 +97,30 @@ export function DashboardPage() {
           {hr.isError && <p className="text-sm text-red-600">Unable to load HR overview.</p>}
           {hr.data != null && (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              <MetricCard label="Headcount" value={String(toNumber(hr.data.headcount))} hint="Active employees" icon={Users} />
-              <MetricCard label="Joiners (30d)" value={String(toNumber(hr.data.joinersLast30Days))} hint="Recent additions" icon={TrendingUp} />
-              <MetricCard label="Leavers (30d)" value={String(toNumber(hr.data.leaversLast30Days))} hint="Recent exits" icon={BriefcaseBusiness} />
-              <MetricCard label="Attrition (12m)" value={`${toNumber(hr.data.attrition12mPct)}%`} hint="Rolling trend" icon={Activity} />
+              <MetricCard
+                label="Headcount"
+                value={String(toNumber(hr.data.headcountActive ?? hr.data.headcount))}
+                hint="Active employees"
+                icon={Users}
+              />
+              <MetricCard
+                label="Joiners (30d)"
+                value={String(toNumber(hr.data.joinersLast30Days))}
+                hint="Recent additions"
+                icon={TrendingUp}
+              />
+              <MetricCard
+                label="Leavers (30d)"
+                value={String(toNumber(hr.data.leaversLast30Days))}
+                hint="Recent exits"
+                icon={BriefcaseBusiness}
+              />
+              <MetricCard
+                label="Attrition (12m)"
+                value={`${toNumber((hr.data as Record<string, unknown>).attrition12mPct ?? 0)}%`}
+                hint="Rolling trend"
+                icon={Activity}
+              />
             </div>
           )}
         </section>
@@ -112,10 +132,31 @@ export function DashboardPage() {
           {bench.isLoading && <Skeleton className="h-28 w-full" />}
           {bench.isError && <p className="text-sm text-red-600">Unable to load bench metrics.</p>}
           {bench.data != null && (
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              <MetricCard label="Utilization" value={`${toNumber(bench.data.utilizationPct)}%`} hint="Billable allocation coverage" icon={TrendingUp} />
-              <MetricCard label="Bench" value={`${toNumber(bench.data.benchPct)}%`} hint="Currently unallocated" icon={Users} />
-              <MetricCard label="Billable ratio" value={`${toNumber(bench.data.billablePct)}%`} hint="Revenue-aligned assignments" icon={Activity} />
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <MetricCard
+                label="Utilization"
+                value={`${bench.data.utilizationPct !== undefined ? toNumber(bench.data.utilizationPct) : Math.max(0, Math.round(100 - toNumber(bench.data.benchPercentage)))}%`}
+                hint="Active project coverage"
+                icon={TrendingUp}
+              />
+              <MetricCard
+                label="Bench"
+                value={`${toNumber(bench.data.benchPercentage ?? bench.data.benchPct)}%`}
+                hint={`${toNumber(bench.data.underutilizedOrBenchedCount)} unallocated`}
+                icon={Users}
+              />
+              <MetricCard
+                label="Fully Allocated"
+                value={String(toNumber(bench.data.fullyUtilizedCount))}
+                hint="100% project staffed"
+                icon={Activity}
+              />
+              <MetricCard
+                label="Active Roster"
+                value={String(toNumber(bench.data.activeRosterSize))}
+                hint="Total staff pool"
+                icon={Users}
+              />
             </div>
           )}
         </section>

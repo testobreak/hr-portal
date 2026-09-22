@@ -46,7 +46,7 @@ export function TimePage() {
   // 1. Clock queries
   const { data: activeSession } = useQuery({
     queryKey: ['attendance', 'activeSession'],
-    queryFn: () => fetchLatestAttendance(),
+    queryFn: async () => (await fetchLatestAttendance()) ?? null,
   });
 
   // Calculate elapsed time for active session

@@ -54,6 +54,9 @@ public record CurrentUser(
     }
 
     public static CurrentUser from(Jwt jwt) {
+        if (jwt == null) {
+            return null;
+        }
         UUID subject = parseSubjectAsUuid(jwt.getSubject());
         String username = jwt.getClaimAsString("preferred_username");
         String email = jwt.getClaimAsString("email");

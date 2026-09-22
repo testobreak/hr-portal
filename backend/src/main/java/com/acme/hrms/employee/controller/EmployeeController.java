@@ -55,7 +55,7 @@ public class EmployeeController {
     public Page<EmployeeSummary> list(@AuthenticationPrincipal Jwt jwt,
                                       @RequestParam(name = "q", required = false) String query,
                                       Pageable pageable) {
-        return service.list(CurrentUser.from(jwt), query, pageable);
+        return service.list(CurrentUser.from(jwt), query, com.acme.hrms.common.web.PageableUtils.sanitize(pageable, com.acme.hrms.employee.entity.Employee.class));
     }
 
     @GetMapping("/{id}")

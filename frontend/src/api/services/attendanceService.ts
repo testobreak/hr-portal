@@ -71,7 +71,7 @@ export function clockOut(payload: ClockOutRequest = {}): Promise<AttendanceRespo
 }
 
 export function fetchLatestAttendance(): Promise<AttendanceResponse | null> {
-  return api.get<AttendanceResponse | null>('/api/v1/attendance/me/latest');
+  return api.get<AttendanceResponse | null>('/api/v1/attendance/me/latest').then((res) => res ?? null);
 }
 
 export function fetchEmployeeAttendanceLogs(startIso: string, endIso: string): Promise<AttendanceResponse[]> {

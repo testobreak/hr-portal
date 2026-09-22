@@ -97,6 +97,19 @@ public class GlobalExceptionHandler {
         return build(ErrorCode.NOT_FOUND, "No handler for " + ex.getHttpMethod() + " " + ex.getRequestURL(), req, null);
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<ApiError> handleNoResourceFound(org.springframework.web.servlet.resource.NoResourceFoundException ex,
+                                                          HttpServletRequest req) {
+        return build(ErrorCode.NOT_FOUND, "No handler for " + ex.getHttpMethod() + " /" + ex.getResourcePath(), req, null);
+    }
+
+    @ExceptionHandler(org.springframework.data.core.PropertyReferenceException.class)
+    public ResponseEntity<ApiError> handlePropertyReference(org.springframework.data.core.PropertyReferenceException ex,
+                                                            HttpServletRequest req) {
+        log.warn("Invalid property in request to {} {}: {}", req.getMethod(), req.getRequestURI(), ex.getMessage());
+        return build(ErrorCode.BAD_REQUEST, "Invalid sort property: " + ex.getPropertyName(), req, null);
+    }
+
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ApiError> handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex,
                                                            HttpServletRequest req) {
