@@ -10,8 +10,7 @@ These services are orchestrated via [`infra/docker-compose.yml`](file:///d:/HRMS
 
 | Service | Access URL / Host | Container Name | Username / User | Password | Details |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **PostgreSQL 18** | `localhost:55432` | `hrms-postgres` | `hrms` | `hrms_local_dev_change_me` | DB: `hrms` \| JDBC: `jdbc:postgresql://localhost:55432/hrms` |
-| **Keycloak 26 Admin**| `http://localhost:8081` | `hrms-keycloak` | `admin` | `admin_local_dev_change_me` | Master Realm Admin Console |
+| **PostgreSQL 17** | `localhost:55432` | `hrms-postgres` | `hrms` | `hrms_local_dev_change_me` | DB: `hrms` \| JDBC: `jdbc:postgresql://localhost:55432/hrms` |
 | **MinIO Console** | `http://localhost:59001` | `hrms-minio` | `hrms_minio_admin` | `hrms_minio_local_change_me` | Object Storage Web Console |
 | **MinIO S3 API** | `http://localhost:59000` | `hrms-minio` | `hrms_minio_admin` | `hrms_minio_local_change_me` | S3 Storage Bucket: `hrms-documents` |
 | **Redis Cache** | `localhost:6379` | `hrms-redis` | *(None)* | *(No auth in dev)* | Cache store for metrics & sessions |

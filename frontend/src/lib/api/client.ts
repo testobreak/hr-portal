@@ -1,5 +1,5 @@
 import { apiBase } from '@/api/apiConfig';
-import { getAccessToken } from '@/auth/keycloak';
+import { getAccessToken, setLocalToken } from '@/auth/tokenStorage';
 import { ApiError, type ProblemDetail } from './errors';
 
 type RequestOptions = {
@@ -46,8 +46,13 @@ async function request<T>(method: string, path: string, options: RequestOptions 
   let res = await doFetch(token);
 
   if (res.status === 401) {
-    token = await getAccessToken();
-    res = await doFetch(token);
+    setLocalToken(null);
+    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
+      const currentPath = window.location.pathname + window.location.search;
+      window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`;
+    }
+    const problem = await parseProblem(res);
+    throw new ApiError(401, problem, path);
   }
 
   if (!res.ok) {

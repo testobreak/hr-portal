@@ -26,7 +26,8 @@ public record EmployeeUpdateRequest(
         @Past LocalDate dateOfBirth,
         @NotNull @PastOrPresent LocalDate dateOfJoining,
         @NotNull EmploymentStatus employmentStatus,
-        UUID keycloakUserId,
+        @com.fasterxml.jackson.annotation.JsonAlias({"keycloakUserId"})
+        UUID userId,
         UUID departmentId,
         UUID designationId,
         UUID locationId,
@@ -34,4 +35,8 @@ public record EmployeeUpdateRequest(
         UUID managerId,
         @NotNull Long version
 ) {
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public UUID keycloakUserId() {
+        return userId;
+    }
 }

@@ -16,9 +16,9 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD:${HRMS_DB_PASSWORD:${POSTGRES_PASSWORD:hrms_local_dev_change_me}}}
     hikari:
       pool-name: hrms-pool
-      maximum-pool-size: 10
-      minimum-idle: 2
-      connection-timeout: 5000
+      maximum-pool-size: ${HRMS_DB_POOL_MAX:30}
+      minimum-idle: ${HRMS_DB_POOL_MIN:5}
+      connection-timeout: 10000
 
   jpa:
     open-in-view: false

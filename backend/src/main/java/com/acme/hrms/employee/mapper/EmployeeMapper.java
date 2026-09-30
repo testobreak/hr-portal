@@ -40,7 +40,7 @@ public interface EmployeeMapper {
     @Mapping(target = "legalEntityId",     source = "legalEntity.id")
     @Mapping(target = "legalEntityName",   source = "legalEntity.name")
     @Mapping(target = "roles",             source = "roles")
-    @Mapping(target = "keycloakUserId",    source = "id")
+    @Mapping(target = "userId",            source = "id")
     @Mapping(target = "tempPassword",      ignore = true)
     EmployeeResponse toResponse(Employee entity);
 
@@ -73,7 +73,7 @@ public interface EmployeeMapper {
                 null,                    // dateOfBirth redacted
                 full.dateOfJoining(),
                 full.employmentStatus(),
-                null,                    // keycloakUserId redacted
+                null,                    // userId redacted
                 full.departmentId(),
                 full.departmentName(),
                 full.designationId(),

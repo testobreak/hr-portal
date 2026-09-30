@@ -17,7 +17,7 @@ The API gateway routes requests to the HRMS service mesh according to deployment
 | **Production (Public Gateway)** | `https://api.hrms.acme.com` | Public Ingress / Cloudflare WAF / TLS 1.3 | Web client & mobile production traffic |
 | **Production (Internal VPC / VPN)** | `https://hrms.internal.acme.corp/api` | Zero-Trust Private Network / AWS ALB | Corporate intranet, internal cron workers, HR tools |
 | **Staging / UAT** | `https://staging-api.hrms.acme.com` | Restricted VPN / Corporate SSO Gateway | Pre-release QA, automated E2E tests, stakeholder review |
-| **Development / Sandbox** | `https://dev-api.hrms.acme.com` | Internal Dev Gateway / Sandbox Keycloak | CI/CD pipeline builds, feature branch integration |
+| **Development / Sandbox** | `https://dev-api.hrms.acme.com` | Internal Dev Gateway / Auth Service | CI/CD pipeline builds, feature branch integration |
 | **Local Development (Direct)** | `http://localhost:8080` | Local workstation loopback | Direct Spring Boot backend testing (Swagger, Postman, curl) |
 | **Local Development (Vite Proxy)** | `http://localhost:5173/api` | Local frontend dev proxy | Web UI pairing with automatic CORS proxying |
 | **Kubernetes / Docker Network** | `http://hrms-backend.hrms.svc.cluster.local:8080` | Cluster Internal CoreDNS (`svc.cluster.local`) | East-West microservice communication & background jobs |
@@ -34,8 +34,8 @@ All endpoints, except public guest recruiting endpoints (`/api/v1/careers/**`) a
 ```http
 Authorization: Bearer <access_token>
 ```
-- **Token Issuer**: `hrms-backend` / Keycloak Realm
-- **Signing Algorithm**: `HS256` / `RS256`
+- **Token Issuer**: `hrms-backend`
+- **Signing Algorithm**: `HS256`
 - **JWT Claims**: `sub` (Employee UUID), `email`, `roles` (Array of assigned RBAC strings), `tenant_id`
 
 ### 1.3 Role-Based Access Control (RBAC) Matrix

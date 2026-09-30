@@ -11,7 +11,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 
 /**
  * springdoc bootstrap. Adds a single global security scheme so that
- * "Authorize" in Swagger UI accepts a Keycloak bearer token and applies it
+ * "Authorize" in Swagger UI accepts a JWT bearer token and applies it
  * to every operation by default.
  */
 @Configuration
@@ -32,7 +32,7 @@ public class OpenApiConfig {
                                 .type(SecurityScheme.Type.HTTP)
                                 .scheme("bearer")
                                 .bearerFormat("JWT")
-                                .description("Keycloak-issued access token. Get one via the SPA login flow.")))
+                                .description("JWT bearer access token. Obtain one via /api/v1/auth/login.")))
                 .addSecurityItem(new SecurityRequirement().addList(SCHEME_NAME));
     }
 }

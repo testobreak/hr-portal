@@ -11,7 +11,7 @@ import com.acme.hrms.common.security.CurrentUser;
 /**
  * Provides the actor UUID for {@code @CreatedBy} / {@code @LastModifiedBy}.
  *
- * <p>For requests with a JWT, returns the Keycloak subject UUID from the
+ * <p>For requests with a JWT, returns the user's subject UUID from the
  * security context. For unauthenticated paths or background jobs (no
  * security context yet, but coming in later phases) returns
  * {@link Optional#empty()} — the column is nullable on purpose so we can

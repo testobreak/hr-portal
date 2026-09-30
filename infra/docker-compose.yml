@@ -1,8 +1,8 @@
 # HR Portal local development stack.
 #
-# Brings up: PostgreSQL 18, Keycloak 26, MinIO, Redis.
+# Brings up: PostgreSQL 17, MinIO, Redis.
 # Backend (Spring Boot) and Frontend (Vite) run on the host during dev for
-# fast reload; their containers will be added in a later phase.
+# fast reload; their containerized services are defined below.
 #
 # Usage (from repo root):
 #   cp .env.example .env
@@ -11,7 +11,6 @@
 #
 # Service URLs (with defaults from .env.example):
 #   Postgres        localhost:5432
-#   Keycloak        http://localhost:8081      (admin / KEYCLOAK_ADMIN_PASSWORD)
 #   MinIO API       http://localhost:9000
 #   MinIO Console   http://localhost:9001      (MINIO_ROOT_USER / _PASSWORD)
 #   Redis           localhost:6379
@@ -106,4 +105,43 @@ services:
       interval: 5s
       timeout: 3s
       retries: 10
+    networks: [hrms-net]
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile
+    container_name: hrms-backend
+    restart: unless-stopped
+    profiles: ["app", "full"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      HRMS_DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-hrms}
+      HRMS_DB_USER: ${POSTGRES_USER:-hrms}
+      HRMS_DB_PASSWORD: ${POSTGRES_PASSWORD}
+      HRMS_REDIS_HOST: redis
+      HRMS_REDIS_PORT: 6379
+      MINIO_API_PORT: 9000
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    networks: [hrms-net]
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: hrms-frontend
+    restart: unless-stopped
+    profiles: ["app", "full"]
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
     networks: [hrms-net]

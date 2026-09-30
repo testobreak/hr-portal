@@ -17,7 +17,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
  * Helpers for issuing test bearer tokens with specific subject + roles.
  *
  * <p>Centralised so individual tests don't repeat the JWT-builder dance.
- * Always passes the same claims a real Keycloak token would carry:
+ * Always passes standard JWT claims:
  * {@code sub}, {@code preferred_username}, {@code email}, and the
  * {@code realm_access.roles} array.
  */

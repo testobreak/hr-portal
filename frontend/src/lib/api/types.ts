@@ -43,7 +43,7 @@ export type EmployeeResponse = {
   dateOfBirth: string | null;
   dateOfJoining: string;
   employmentStatus: string;
-  keycloakUserId: string | null;
+  userId?: string | null;
   departmentId: string | null;
   departmentName: string | null;
   designationId: string | null;

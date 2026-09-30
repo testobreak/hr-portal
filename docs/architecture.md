@@ -14,29 +14,27 @@ A single-tenant internal web application used by Acme staff and finance to manag
 - Slack presence (informational only — never used for payroll)
 - Dashboards for HR, Finance, and Leadership
 
-There are seven roles defined in Keycloak. Authoritative permissions are in
-[`rbac-matrix.md`](rbac-matrix.md).
+There are authoritative roles defined in the database RBAC matrix ([`rbac-matrix.md`](rbac-matrix.md)).
 
 ```
-┌──────────────────┐    OIDC PKCE     ┌──────────────────┐
-│  Browser (React) │ ───────────────▶ │     Keycloak     │
-│                  │ ◀─── id+access ──│  realm: hrms     │
-└──────┬───────────┘                  └──────────────────┘
-       │ Bearer JWT
+┌──────────────────┐    POST /api/v1/auth/login
+│  Browser (React) │ ───────────────────────────┐
+│                  │ ◀─── Signed Bearer JWT ────┤
+└──────┬───────────┘                            │
+       │ Bearer JWT                             ▼
+       ▼                                ┌──────────────────┐
+┌──────────────────┐  JPA               │  Spring Boot API │
+│  Spring Boot API │ ─────────────────▶ │  (com.acme.hrms) │
+│  OAuth2 RS (JWT) │                    └────────┬─────────┘
+└──────┬───────────┘                             │
+       │                                         ▼
+       │ JPA                            ┌──────────────────┐
+       ├──────────────────────────────▶ │  PostgreSQL      │
+       │                                └──────────────────┘
+       │ AWS SDK v2 / S3 protocol
        ▼
-┌──────────────────┐  JPA   ┌──────────────────┐
-│  Spring Boot API │ ─────▶ │   PostgreSQL 18  │
-│  com.acme.hrms   │        └──────────────────┘
-└──┬─────────┬─────┘
-   │         │  AWS SDK v2 / S3 protocol
-   │         ▼
-   │  ┌──────────────────┐
-   │  │   MinIO  (S3)    │   documents bucket
-   │  └──────────────────┘
-   │
-   ▼ Spring Data Redis
 ┌──────────────────┐
-│      Redis       │   dashboard cache, dropdown cache
+│   MinIO  (S3)    │   documents bucket
 └──────────────────┘
 ```
 

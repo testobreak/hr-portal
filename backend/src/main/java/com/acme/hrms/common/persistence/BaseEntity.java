@@ -31,7 +31,7 @@ import lombok.Setter;
  *   <li>{@code created_at}, {@code created_by} — populated by JPA auditing
  *       on first persist. {@code created_by} comes from
  *       {@link SecurityContextAuditorAware} (resolves to the calling user's
- *       Keycloak subject UUID).</li>
+ *       subject UUID).</li>
  *   <li>{@code updated_at}, {@code updated_by} — populated on every flush.</li>
  *   <li>{@code deleted_at} — soft delete marker. Subclasses are filtered by
  *       {@code @SQLRestriction("deleted_at IS NULL")} so default reads only

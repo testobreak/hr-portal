@@ -32,12 +32,12 @@ export type EmployeeCreatePayload = {
   dateOfBirth?: string;
   dateOfJoining: string;
   employmentStatus?: string;
-  keycloakUserId?: string;
+  userId?: string;
   departmentId?: string;
   designationId?: string;
   locationId?: string;
   managerId?: string;
-  keycloakPassword?: string;
+  password?: string;
 };
 
 export type EmployeeUpdatePayload = Omit<EmployeeCreatePayload, 'employeeCode'> & {

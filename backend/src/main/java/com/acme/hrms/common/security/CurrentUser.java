@@ -17,8 +17,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
  * {@link SecurityContextHolder} from inside services — take a {@code CurrentUser}
  * argument instead, both for testability and to make the contract explicit.
  *
- * <p>The {@code subjectUuid} field is the Keycloak user id, which we mirror
- * into {@code employee.keycloak_user_id} once the employee module lands.
+ * <p>The {@code subjectUuid} field is the user ID from the JWT token subject.
  */
 public record CurrentUser(
         UUID subjectUuid,
@@ -80,8 +79,7 @@ public record CurrentUser(
         try {
             return UUID.fromString(subject);
         } catch (IllegalArgumentException ex) {
-            // Keycloak issues UUID subjects, but a non-UUID 'sub' (e.g. for a
-            // service account or external IdP) shouldn't blow up auth.
+            // A non-UUID 'sub' (e.g. for a service account) shouldn't blow up auth.
             return null;
         }
     }

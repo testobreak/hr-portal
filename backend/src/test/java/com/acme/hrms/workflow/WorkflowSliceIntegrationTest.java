@@ -105,7 +105,7 @@ class WorkflowSliceIntegrationTest extends AbstractIntegrationTest {
                                 Map.entry("phoneNumber", "+15550100"),
                                 Map.entry("dateOfBirth", "1980-01-01"),
                                 Map.entry("dateOfJoining", "2020-01-01"),
-                                Map.entry("keycloakUserId", MANAGER_SUBJECT.toString()),
+                                Map.entry("userId", MANAGER_SUBJECT.toString()),
                                 Map.entry("departmentId", engDeptId.toString()),
                                 Map.entry("designationId", sdeDesignationId.toString()),
                                 Map.entry("locationId", hqLocationId.toString()),

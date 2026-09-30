@@ -52,7 +52,7 @@ public class ManagerHierarchyIntegrationTest extends AbstractIntegrationTest {
         MvcResult hrRes = mockMvc.perform(post("/api/employees")
                         .with(asTenantUser(HR_SUBJECT, "hr@acme.local", TENANT_ID, Roles.HR_ADMIN))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"employeeCode\":\"HR001\",\"firstName\":\"HR\",\"lastName\":\"Admin\",\"email\":\"hr@acme.local\",\"dateOfJoining\":\"2020-01-01\",\"keycloakUserId\":\"" + HR_SUBJECT + "\"}"))
+                        .content("{\"employeeCode\":\"HR001\",\"firstName\":\"HR\",\"lastName\":\"Admin\",\"email\":\"hr@acme.local\",\"dateOfJoining\":\"2020-01-01\",\"userId\":\"" + HR_SUBJECT + "\"}"))
                 .andExpect(status().isCreated())
                 .andReturn();
         hrId = UUID.fromString(objectMapper.readTree(hrRes.getResponse().getContentAsString()).get("id").asText());
@@ -61,7 +61,7 @@ public class ManagerHierarchyIntegrationTest extends AbstractIntegrationTest {
         MvcResult ceoRes = mockMvc.perform(post("/api/employees")
                         .with(asTenantUser(HR_SUBJECT, "hr@acme.local", TENANT_ID, Roles.HR_ADMIN))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"employeeCode\":\"CEO001\",\"firstName\":\"CEO\",\"lastName\":\"Top\",\"email\":\"ceo@acme.local\",\"dateOfJoining\":\"2020-01-01\",\"keycloakUserId\":\"" + CEO_SUBJECT + "\"}"))
+                        .content("{\"employeeCode\":\"CEO001\",\"firstName\":\"CEO\",\"lastName\":\"Top\",\"email\":\"ceo@acme.local\",\"dateOfJoining\":\"2020-01-01\",\"userId\":\"" + CEO_SUBJECT + "\"}"))
                 .andExpect(status().isCreated())
                 .andReturn();
         ceoId = UUID.fromString(objectMapper.readTree(ceoRes.getResponse().getContentAsString()).get("id").asText());
@@ -70,7 +70,7 @@ public class ManagerHierarchyIntegrationTest extends AbstractIntegrationTest {
         MvcResult mgrRes = mockMvc.perform(post("/api/employees")
                         .with(asTenantUser(HR_SUBJECT, "hr@acme.local", TENANT_ID, Roles.HR_ADMIN))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"employeeCode\":\"MGR001\",\"firstName\":\"Mgr\",\"lastName\":\"Middle\",\"email\":\"mgr@acme.local\",\"dateOfJoining\":\"2021-01-01\",\"managerId\":\"" + ceoId + "\",\"keycloakUserId\":\"" + MGR_SUBJECT + "\"}"))
+                        .content("{\"employeeCode\":\"MGR001\",\"firstName\":\"Mgr\",\"lastName\":\"Middle\",\"email\":\"mgr@acme.local\",\"dateOfJoining\":\"2021-01-01\",\"managerId\":\"" + ceoId + "\",\"userId\":\"" + MGR_SUBJECT + "\"}"))
                 .andExpect(status().isCreated())
                 .andReturn();
         managerId = UUID.fromString(objectMapper.readTree(mgrRes.getResponse().getContentAsString()).get("id").asText());
@@ -79,7 +79,7 @@ public class ManagerHierarchyIntegrationTest extends AbstractIntegrationTest {
         MvcResult empRes = mockMvc.perform(post("/api/employees")
                         .with(asTenantUser(HR_SUBJECT, "hr@acme.local", TENANT_ID, Roles.HR_ADMIN))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"employeeCode\":\"EMP001\",\"firstName\":\"Emp\",\"lastName\":\"Sub\",\"email\":\"emp@acme.local\",\"dateOfJoining\":\"2022-01-01\",\"managerId\":\"" + managerId + "\",\"keycloakUserId\":\"" + EMP_SUBJECT + "\"}"))
+                        .content("{\"employeeCode\":\"EMP001\",\"firstName\":\"Emp\",\"lastName\":\"Sub\",\"email\":\"emp@acme.local\",\"dateOfJoining\":\"2022-01-01\",\"managerId\":\"" + managerId + "\",\"userId\":\"" + EMP_SUBJECT + "\"}"))
                 .andExpect(status().isCreated())
                 .andReturn();
         employeeId = UUID.fromString(objectMapper.readTree(empRes.getResponse().getContentAsString()).get("id").asText());

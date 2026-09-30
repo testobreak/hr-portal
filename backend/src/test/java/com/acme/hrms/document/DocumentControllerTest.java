@@ -312,9 +312,9 @@ class DocumentControllerTest extends AbstractIntegrationTest {
         return docId;
     }
 
-    private Employee baseEmp(String code, String first, String last, String email, UUID keycloakUserId) {
+    private Employee baseEmp(String code, String first, String last, String email, UUID userId) {
         Employee employee = new Employee();
-        employee.setId(keycloakUserId);
+        employee.setId(userId);
         employee.setEmployeeCode(code);
         employee.setFirstName(first);
         employee.setLastName(last);

@@ -46,7 +46,7 @@ public class LeaveEngineIntegrationTest extends AbstractIntegrationTest {
         MvcResult hrRes = mockMvc.perform(post("/api/employees")
                         .with(asTenantUser(HR_SUBJECT, "hr@acme.local", TENANT_ID, Roles.HR_ADMIN))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"employeeCode\":\"HR001\",\"firstName\":\"HR\",\"lastName\":\"Admin\",\"email\":\"hr@acme.local\",\"dateOfJoining\":\"2020-01-01\",\"keycloakUserId\":\"" + HR_SUBJECT + "\"}"))
+                        .content("{\"employeeCode\":\"HR001\",\"firstName\":\"HR\",\"lastName\":\"Admin\",\"email\":\"hr@acme.local\",\"dateOfJoining\":\"2020-01-01\",\"userId\":\"" + HR_SUBJECT + "\"}"))
                 .andExpect(status().isCreated())
                 .andReturn();
         hrId = UUID.fromString(objectMapper.readTree(hrRes.getResponse().getContentAsString()).get("id").asText());
@@ -55,7 +55,7 @@ public class LeaveEngineIntegrationTest extends AbstractIntegrationTest {
         MvcResult empRes = mockMvc.perform(post("/api/employees")
                         .with(asTenantUser(HR_SUBJECT, "hr@acme.local", TENANT_ID, Roles.HR_ADMIN))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"employeeCode\":\"EMP001\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"email\":\"john@acme.local\",\"dateOfJoining\":\"2022-01-01\",\"keycloakUserId\":\"" + EMPLOYEE_SUBJECT + "\"}"))
+                        .content("{\"employeeCode\":\"EMP001\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"email\":\"john@acme.local\",\"dateOfJoining\":\"2022-01-01\",\"userId\":\"" + EMPLOYEE_SUBJECT + "\"}"))
                 .andExpect(status().isCreated())
                 .andReturn();
         employeeId = UUID.fromString(objectMapper.readTree(empRes.getResponse().getContentAsString()).get("id").asText());

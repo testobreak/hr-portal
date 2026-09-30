@@ -12,6 +12,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import com.acme.hrms.employee.entity.EmploymentStatus;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 public record EmployeeCreateRequest(
         @NotBlank @Size(max = 32) String employeeCode,
@@ -24,13 +25,22 @@ public record EmployeeCreateRequest(
         @Past LocalDate dateOfBirth,
         @NotNull @PastOrPresent LocalDate dateOfJoining,
         EmploymentStatus employmentStatus,
-        UUID keycloakUserId,
+        @JsonAlias({"keycloakUserId"})
+        UUID userId,
         UUID departmentId,
         UUID designationId,
         UUID locationId,
         UUID legalEntityId,
         UUID managerId,
         java.util.List<String> roles,
-        String keycloakPassword
+        @JsonAlias({"keycloakPassword"})
+        String password
 ) {
+    public UUID keycloakUserId() {
+        return userId;
+    }
+
+    public String keycloakPassword() {
+        return password;
+    }
 }

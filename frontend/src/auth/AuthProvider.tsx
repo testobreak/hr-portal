@@ -1,5 +1,5 @@
 import { createContext, useMemo, useState, type ReactNode } from 'react';
-import { setLocalToken } from './keycloak';
+import { setLocalToken } from './tokenStorage';
 
 function decodeJwt(token: string) {
   try {

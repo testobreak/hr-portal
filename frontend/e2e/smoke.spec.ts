@@ -7,5 +7,5 @@ test('home page renders HRMS heading', async ({ page }) => {
 
 test('shows sign-in when anonymous', async ({ page }) => {
   await page.goto('/');
-  await expect(page.getByRole('button', { name: /sign in with keycloak/i })).toBeVisible();
+  await expect(page.getByRole('button', { name: /sign in/i })).toBeVisible();
 });

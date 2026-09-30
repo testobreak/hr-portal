@@ -15,7 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
  * <p>Personal fields ({@code dateOfBirth}, {@code phoneNumber}) are present
  * only when the caller has read permission for them — for self, HR, FIN,
  * SUPER. For managers / project managers, they are stripped at the service
- * layer before the response is built. {@code keycloakUserId} is exposed
+ * layer before the response is built. {@code userId} is exposed
  * only to HR/SUPER (admin-y info).
  */
 @Schema(description = "Full employee read. Some fields are role-conditional.")
@@ -30,7 +30,8 @@ public record EmployeeResponse(
         LocalDate dateOfBirth,
         LocalDate dateOfJoining,
         EmploymentStatus employmentStatus,
-        UUID keycloakUserId,
+        @com.fasterxml.jackson.annotation.JsonAlias({"keycloakUserId"})
+        UUID userId,
         UUID departmentId,
         String departmentName,
         UUID designationId,
@@ -47,4 +48,8 @@ public record EmployeeResponse(
         java.util.List<String> roles,
         String tempPassword
 ) {
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public UUID keycloakUserId() {
+        return userId;
+    }
 }

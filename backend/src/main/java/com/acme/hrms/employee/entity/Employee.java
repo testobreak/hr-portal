@@ -25,10 +25,6 @@ import lombok.Setter;
 /**
  * Employee master record.
  *
- * <p>{@code keycloakUserId} is the join key to the JWT subject when the
- * employee logs in. It is nullable because HR may onboard an employee
- * (record on file, contract sent) before Keycloak provisioning happens.
- *
  * <p>Manager relationship is a self-reference. Trees can be walked via the
  * {@code findDescendantIds} recursive CTE in {@code EmployeeRepository}.
  *

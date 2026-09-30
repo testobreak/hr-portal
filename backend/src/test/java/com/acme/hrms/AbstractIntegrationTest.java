@@ -18,7 +18,7 @@ import org.testcontainers.utility.DockerImageName;
  * static initializer keeps the same instance alive across all subclasses)
  * and points Spring's datasource + Flyway at it. JWTs are stubbed via
  * {@code spring-security-test}'s {@code SecurityMockMvcRequestPostProcessors.jwt()}
- * so we don't need a live Keycloak.
+ * so we don't need an external auth server.
  *
  * <p>Requires Docker on the host running the build. CI must have Docker
  * available too — non-negotiable, since PG-specific features

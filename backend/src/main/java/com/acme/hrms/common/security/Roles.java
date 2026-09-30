@@ -1,8 +1,7 @@
 package com.acme.hrms.common.security;
 
 /**
- * Canonical role names. Mirrors the realm roles in
- * {@code infra/keycloak/realm-hrms.json} and the matrix in
+ * Canonical role names. Mirrors the application role matrix in
  * {@code docs/rbac-matrix.md}.
  *
  * <p>Use these constants in {@code @PreAuthorize} expressions instead of

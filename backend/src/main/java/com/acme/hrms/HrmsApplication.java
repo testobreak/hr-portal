@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * turned on yet. They'll be added with their first consumer in later phases
  * (BaseEntity in Phase 2, scheduler jobs in Phase 7+).
  */
+@org.springframework.scheduling.annotation.EnableScheduling
 @SpringBootApplication
 public class HrmsApplication {
 

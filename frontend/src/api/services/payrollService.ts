@@ -1,6 +1,6 @@
 import { api } from '@/lib/api/client';
 import { apiBase } from '@/api/apiConfig';
-import { getAccessToken } from '@/auth/keycloak';
+import { getAccessToken } from '@/auth/tokenStorage';
 
 export type PayrollRunResponse = {
   id: string;

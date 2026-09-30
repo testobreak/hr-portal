@@ -120,8 +120,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         }
 
         Employee entity = mapper.toEntity(request);
-        if (request.keycloakUserId() != null) {
-            entity.setId(request.keycloakUserId());
+        if (request.userId() != null) {
+            entity.setId(request.userId());
         }
         if (entity.getEmploymentStatus() == null) {
             entity.setEmploymentStatus(com.acme.hrms.employee.entity.EmploymentStatus.ACTIVE);
@@ -133,8 +133,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         attachManager(entity, request.managerId());
 
         String tempPassword = null;
-        if (request.keycloakPassword() != null && !request.keycloakPassword().isBlank()) {
-            entity.setPasswordHash(passwordEncoder.encode(request.keycloakPassword()));
+        if (request.password() != null && !request.password().isBlank()) {
+            entity.setPasswordHash(passwordEncoder.encode(request.password()));
         } else {
             String plainPassword = "Temp#" + UUID.randomUUID().toString().substring(0, 8);
             entity.setPasswordHash(passwordEncoder.encode(plainPassword));
@@ -170,7 +170,7 @@ public class EmployeeServiceImpl implements EmployeeService {
                 baseRes.dateOfBirth(),
                 baseRes.dateOfJoining(),
                 baseRes.employmentStatus(),
-                baseRes.keycloakUserId(),
+                baseRes.userId(),
                 baseRes.departmentId(),
                 baseRes.departmentName(),
                 baseRes.designationId(),

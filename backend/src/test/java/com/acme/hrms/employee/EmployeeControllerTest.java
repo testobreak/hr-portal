@@ -224,7 +224,7 @@ class EmployeeControllerTest extends AbstractIntegrationTest {
                         .with(asUser(HR_SUBJECT, "hr@acme.local", Roles.HR_ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("carol@acme.local"))
-                .andExpect(jsonPath("$.keycloakUserId").value(EMP_SUBJECT.toString()));
+                .andExpect(jsonPath("$.userId").value(EMP_SUBJECT.toString()));
     }
 
     @Test
@@ -233,9 +233,9 @@ class EmployeeControllerTest extends AbstractIntegrationTest {
                         .with(asUser(MGR_SUBJECT, "bob@acme.local", Roles.MANAGER)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email").value("carol@acme.local"))
-                // keycloakUserId / phoneNumber / dateOfBirth must be omitted
+                // userId / phoneNumber / dateOfBirth must be omitted
                 // (JsonInclude=NON_NULL on the response → key is absent).
-                .andExpect(jsonPath("$.keycloakUserId").doesNotExist())
+                .andExpect(jsonPath("$.userId").doesNotExist())
                 .andExpect(jsonPath("$.phoneNumber").doesNotExist())
                 .andExpect(jsonPath("$.dateOfBirth").doesNotExist());
     }

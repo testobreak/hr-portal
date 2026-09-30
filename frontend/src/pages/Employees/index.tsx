@@ -23,8 +23,7 @@ const employeeFormSchema = z.object({
   dateOfBirth: z.string().optional(),
   dateOfJoining: z.string().min(1),
   employmentStatus: z.enum(['ACTIVE', 'ON_LEAVE', 'TERMINATED', 'RESIGNED', 'ABSCONDED']),
-  keycloakUserId: z.string().trim().optional(),
-  keycloakPassword: z.string().trim().optional(),
+  password: z.string().trim().optional(),
   departmentId: z.string().trim().optional(),
   designationId: z.string().trim().optional(),
   locationId: z.string().trim().optional(),
@@ -71,7 +70,7 @@ export function EmployeesPage() {
 
   const form = useForm<EmployeeFormValues>({
     resolver: zodResolver(employeeFormSchema),
-    defaultValues: { employeeCode: '', firstName: '', lastName: '', email: '', phoneNumber: '', dateOfBirth: '', dateOfJoining: '', employmentStatus: 'ACTIVE', keycloakUserId: '', departmentId: '', designationId: '', locationId: '', managerId: '', keycloakPassword: '' },
+    defaultValues: { employeeCode: '', firstName: '', lastName: '', email: '', phoneNumber: '', dateOfBirth: '', dateOfJoining: '', employmentStatus: 'ACTIVE', departmentId: '', designationId: '', locationId: '', managerId: '', password: '' },
   });
 
   const createMutation = useMutation({
@@ -95,7 +94,7 @@ export function EmployeesPage() {
   const editMutation = useMutation({
     mutationFn: (values: EmployeeFormValues) => {
       if (!selectedEmployee.data) throw new Error('No selected employee');
-      return updateEmployee(selectedEmployee.data.id, { firstName: values.firstName.trim(), lastName: values.lastName.trim(), email: values.email.trim(), phoneNumber: cleanOptional(values.phoneNumber), dateOfBirth: cleanOptional(values.dateOfBirth), dateOfJoining: values.dateOfJoining, employmentStatus: values.employmentStatus, keycloakUserId: cleanOptional(values.keycloakUserId), departmentId: cleanOptional(values.departmentId), designationId: cleanOptional(values.designationId), locationId: cleanOptional(values.locationId), managerId: cleanOptional(values.managerId), version: selectedEmployee.data.version });
+      return updateEmployee(selectedEmployee.data.id, { firstName: values.firstName.trim(), lastName: values.lastName.trim(), email: values.email.trim(), phoneNumber: cleanOptional(values.phoneNumber), dateOfBirth: cleanOptional(values.dateOfBirth), dateOfJoining: values.dateOfJoining, employmentStatus: values.employmentStatus, departmentId: cleanOptional(values.departmentId), designationId: cleanOptional(values.designationId), locationId: cleanOptional(values.locationId), managerId: cleanOptional(values.managerId), version: selectedEmployee.data.version });
     },
     onMutate: async (values) => {
       await queryClient.cancelQueries({ queryKey: ['employees', page, size, searchQuery] });
@@ -114,17 +113,17 @@ export function EmployeesPage() {
     onSuccess: (updated) => { queryClient.invalidateQueries({ queryKey: ['employees'] }); queryClient.setQueryData(['employee', updated.id], updated); setEditorMode(null); setSubmitError(null); pushToast('success', 'Employee updated successfully'); },
   });
 
-  const openCreate = () => { setSubmitError(null); form.reset({ employeeCode: '', firstName: '', lastName: '', email: '', phoneNumber: '', dateOfBirth: '', dateOfJoining: '', employmentStatus: 'ACTIVE', keycloakUserId: '', departmentId: '', designationId: '', locationId: '', managerId: '', keycloakPassword: '' }); setEditorMode('create'); };
+  const openCreate = () => { setSubmitError(null); form.reset({ employeeCode: '', firstName: '', lastName: '', email: '', phoneNumber: '', dateOfBirth: '', dateOfJoining: '', employmentStatus: 'ACTIVE', departmentId: '', designationId: '', locationId: '', managerId: '', password: '' }); setEditorMode('create'); };
   const openEdit = () => {
     if (!selectedEmployee.data) return;
     const e = selectedEmployee.data;
-    form.reset({ employeeCode: e.employeeCode, firstName: e.firstName, lastName: e.lastName, email: e.email, phoneNumber: e.phoneNumber ?? '', dateOfBirth: e.dateOfBirth ?? '', dateOfJoining: e.dateOfJoining, employmentStatus: e.employmentStatus as EmployeeFormValues['employmentStatus'], keycloakUserId: e.keycloakUserId ?? '', departmentId: e.departmentId ?? '', designationId: e.designationId ?? '', locationId: e.locationId ?? '', managerId: e.managerId ?? '', keycloakPassword: '' });
+    form.reset({ employeeCode: e.employeeCode, firstName: e.firstName, lastName: e.lastName, email: e.email, phoneNumber: e.phoneNumber ?? '', dateOfBirth: e.dateOfBirth ?? '', dateOfJoining: e.dateOfJoining, employmentStatus: e.employmentStatus as EmployeeFormValues['employmentStatus'], departmentId: e.departmentId ?? '', designationId: e.designationId ?? '', locationId: e.locationId ?? '', managerId: e.managerId ?? '', password: '' });
     setSubmitError(null); setEditorMode('edit');
   };
 
   const onSubmit = form.handleSubmit((values) => {
     setSubmitError(null);
-    if (editorMode === 'create') createMutation.mutate({ employeeCode: values.employeeCode.trim(), firstName: values.firstName.trim(), lastName: values.lastName.trim(), email: values.email.trim(), phoneNumber: cleanOptional(values.phoneNumber), dateOfBirth: cleanOptional(values.dateOfBirth), dateOfJoining: values.dateOfJoining, employmentStatus: values.employmentStatus, keycloakUserId: cleanOptional(values.keycloakUserId), departmentId: cleanOptional(values.departmentId), designationId: cleanOptional(values.designationId), locationId: cleanOptional(values.locationId), managerId: cleanOptional(values.managerId), keycloakPassword: cleanOptional(values.keycloakPassword) });
+    if (editorMode === 'create') createMutation.mutate({ employeeCode: values.employeeCode.trim(), firstName: values.firstName.trim(), lastName: values.lastName.trim(), email: values.email.trim(), phoneNumber: cleanOptional(values.phoneNumber), dateOfBirth: cleanOptional(values.dateOfBirth), dateOfJoining: values.dateOfJoining, employmentStatus: values.employmentStatus, departmentId: cleanOptional(values.departmentId), designationId: cleanOptional(values.designationId), locationId: cleanOptional(values.locationId), managerId: cleanOptional(values.managerId), password: cleanOptional(values.password) });
     if (editorMode === 'edit') editMutation.mutate(values);
   });
 
@@ -169,7 +168,7 @@ export function EmployeesPage() {
             <input
               type="password"
               className="h-9 rounded-md border border-border bg-background px-3 outline-none focus:ring-2 focus:ring-primary/30"
-              {...form.register('keycloakPassword')}
+              {...form.register('password')}
             />
           </label>
         )}
