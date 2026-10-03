@@ -31,17 +31,17 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd="pg_isready -U hrms -d hrms"
           --health-interval 10s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 10
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
@@ -59,6 +59,11 @@ jobs:
         run: npm install
 
       # Option B: Run local PR backend if no external URL provided
+      - name: Package Backend Application
+        if: env.TARGET_API_URL == ''
+        working-directory: backend
+        run: mvn -B -ntp clean package -DskipTests
+
       - name: Start Backend for Contract Validation
         if: env.TARGET_API_URL == ''
         working-directory: backend
@@ -69,24 +74,24 @@ jobs:
           HRMS_DB_PASSWORD: hrms_local_dev_change_me
           HRMS_STORAGE_ENABLED: "false"
         run: |
-          echo "Starting Spring Boot backend in background..."
-          mvn spring-boot:run -Dspring-boot.run.profiles=local > backend.log 2>&1 &
+          echo "Starting Spring Boot backend..."
+          java -jar target/hrms.jar --hrms.storage.enabled=false > backend.log 2>&1 &
           BACKEND_PID=$!
           echo "BACKEND_PID=$BACKEND_PID" >> $GITHUB_ENV
 
           echo "Waiting for backend health check..."
-          for i in {1..40}; do
+          for i in {1..30}; do
             if curl -s http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
               echo "Backend is UP and ready!"
               break
             fi
-            echo "Waiting for backend ($i/40)..."
-            sleep 3
+            echo "Waiting for backend ($i/30)..."
+            sleep 2
           done
 
           if ! curl -s http://localhost:8080/actuator/health | grep -q '"status":"UP"'; then
-            echo "Backend failed to start. Tail of backend.log:"
-            tail -n 100 backend.log
+            echo "Backend failed to start. Content of backend.log:"
+            cat backend.log
             exit 1
           fi
 
