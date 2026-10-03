@@ -18,6 +18,8 @@ jobs:
   api-contract-tests:
     name: API Contract Tests
     runs-on: ubuntu-latest
+    env:
+      TARGET_API_URL: ${{ inputs.api_base_url || secrets.API_BASE_URL || '' }}
 
     services:
       postgres:
@@ -58,7 +60,7 @@ jobs:
 
       # Option B: Run local PR backend if no external URL provided
       - name: Start Backend for Contract Validation
-        if: ${{ github.event.inputs.api_base_url == '' && secrets.API_BASE_URL == '' }}
+        if: env.TARGET_API_URL == ''
         working-directory: backend
         env:
           SPRING_PROFILES_ACTIVE: local
@@ -91,7 +93,7 @@ jobs:
       - name: Run API Contract Tests
         working-directory: api-tests
         env:
-          API_BASE_URL: ${{ github.event.inputs.api_base_url || secrets.API_BASE_URL || 'http://localhost:8080' }}
+          API_BASE_URL: ${{ env.TARGET_API_URL || 'http://localhost:8080' }}
           API_TOKEN: ${{ secrets.API_TOKEN }}
         run: npm test
 
