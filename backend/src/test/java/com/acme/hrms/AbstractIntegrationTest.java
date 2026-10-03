@@ -59,11 +59,10 @@ public abstract class AbstractIntegrationTest {
         jdbcTemplate.execute("TRUNCATE TABLE onboarding_task CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE onboarding_plan CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE pre_hire CASCADE");
-        jdbcTemplate.execute("TRUNCATE TABLE job_offer CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE offer CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE interview_feedback CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE interview CASCADE");
-        jdbcTemplate.execute("TRUNCATE TABLE application_stage_history CASCADE");
-        jdbcTemplate.execute("TRUNCATE TABLE job_application CASCADE");
+        jdbcTemplate.execute("TRUNCATE TABLE candidate_application CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE candidate CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE job_posting CASCADE");
         jdbcTemplate.execute("TRUNCATE TABLE job_opening CASCADE");
